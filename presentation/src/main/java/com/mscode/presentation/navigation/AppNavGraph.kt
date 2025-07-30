@@ -8,6 +8,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mscode.presentation.common.ErrorScreen
+import com.mscode.presentation.home.screen.HomeScreen
+import com.mscode.presentation.home.viewmodel.HomeViewModel
 import com.mscode.presentation.splashscreen.model.UiState
 import com.mscode.presentation.splashscreen.screen.SplashScreen
 import com.mscode.presentation.splashscreen.viewmodel.SplashScreenViewModel
@@ -38,6 +41,14 @@ fun AppNavGraph(
             )
         }
 
+        composable("home") {
+            val homeViewModel: HomeViewModel = hiltViewModel()
+            HomeScreen(homeViewModel)
+        }
+
+        composable("error") {
+            ErrorScreen()
+        }
     }
 }
 
