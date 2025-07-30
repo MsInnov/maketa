@@ -1,10 +1,18 @@
 package com.mscode.presentation.home.screen
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +22,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,17 +31,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mscode.presentation.common.ErrorScreen
 import com.mscode.presentation.home.model.UiProducts
 import com.mscode.presentation.home.model.UiState
 import com.mscode.presentation.home.viewmodel.HomeViewModel
+import com.mscode.presentation.login.component.LoginPanel
+import com.mscode.presentation.login.model.UiState.Logged
+import com.mscode.presentation.login.viewmodel.LoginViewModel
+import com.mscode.presentation.menu.component.MenuAnimated
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+val lightBackground = Color(0xFFF5F5F5)
+
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel) {
     val uiState = homeViewModel.uiState.collectAsState()
@@ -45,16 +67,20 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
         }
 
         is UiState.Error -> ErrorScreen()
-        is UiState.Products -> ProductsScreen(
+        is UiState.Products -> ProductsScreenWithSidePanel(
             products = state.products
         )
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ProductsScreen(
+fun ProductsScreenWithSidePanel(
     products: List<UiProducts>
 ) {
+    var panelOpen by remember { mutableStateOf(false) }
+    var panelContentState by remember { mutableStateOf(PanelContentState.LOGIN) }
+    val panelWidth = 320.dp
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(products.size) { index ->
@@ -63,6 +89,89 @@ fun ProductsScreen(
                     product = product
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .width(40.dp)
+                .height(120.dp)
+                .background(
+                    Color(0xFF6200EE),
+                    shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)
+                )
+                .clickable {
+                    panelOpen = true
+                    panelContentState = PanelContentState.LOGIN
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Menu",
+                color = Color.White,
+                modifier = Modifier.rotate(-90f),
+                style = MaterialTheme.typography.button
+            )
+        }
+
+        val offsetX by animateDpAsState(
+            targetValue = if (panelOpen) 0.dp else panelWidth,
+            animationSpec = tween(durationMillis = 300),
+            label = "PanelSlide"
+        )
+        val loginViewModel: LoginViewModel = hiltViewModel()
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(panelWidth)
+                .align(Alignment.CenterEnd)
+                .offset(x = offsetX)
+                .background(
+                    Color.White,
+                    shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)
+                )
+                .shadow(8.dp)
+                .padding(16.dp)
+        ) {
+            AnimatedContent(
+                targetState = panelContentState,
+                transitionSpec = {
+                    slideInHorizontally { width -> -width } with slideOutHorizontally { width -> width }
+                },
+                label = "PanelSlideAnimation"
+            ) { state ->
+                when (state) {
+                    PanelContentState.LOGIN -> LoginPanel(
+                        viewModel = loginViewModel,
+                        onClose = { panelOpen = false },
+                        onGoToMenu = { panelContentState = PanelContentState.MENU }
+                    )
+
+                    PanelContentState.MENU -> {
+                        MenuAnimated(
+                            loginViewModel = loginViewModel,
+                            onClose = {
+                                panelOpen = false
+                            },
+                            onGoLogin = {
+                                panelContentState = PanelContentState.LOGIN
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        val context = LocalContext.current
+        val uiStateLogin = loginViewModel.uiState.collectAsState()
+        LaunchedEffect(uiStateLogin.value,) {
+            if (uiStateLogin.value == Logged) {
+                repeat(2) { // 2 x 4s = 8s environ
+                    Toast.makeText(context, "Vous êtes loggé avec succès", Toast.LENGTH_LONG)
+                        .show()
+                    delay(4000) // attendre que le toast se termine
+                }
             }
         }
     }
@@ -161,4 +270,8 @@ fun ProductItem(
             }
         }
     }
+}
+
+enum class PanelContentState {
+    LOGIN, MENU
 }
