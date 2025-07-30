@@ -1,4 +1,4 @@
-package com.mscode.presentation.login.component
+package com.mscode.presentation.register.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,22 +28,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.mscode.presentation.home.screen.lightBackground
-import com.mscode.presentation.login.model.UiEvent
-import com.mscode.presentation.login.model.UiState
-import com.mscode.presentation.login.model.UiState.Logged
-import com.mscode.presentation.login.viewmodel.LoginViewModel
+import com.mscode.presentation.register.model.UiEvent
+import com.mscode.presentation.register.model.UiState
+import com.mscode.presentation.register.viewmodel.RegisterViewModel
 
 @Composable
-fun LoginPanel(
-    viewModel: LoginViewModel,
+fun RegisterPanel(
+    viewModel: RegisterViewModel,
     onClose: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onGoToMenu: @Composable () -> Unit
+    onBackToLogin: () -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsState()
-    if(uiState.value == Logged) {
-        onGoToMenu()
-        return
+    if(uiState.value == UiState.Registered) {
+        onBackToLogin()
     }
     Box(
         modifier = Modifier
@@ -63,10 +60,20 @@ fun LoginPanel(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Connexion", style = MaterialTheme.typography.h6)
+                Text("Inscription", style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(16.dp))
-                var user by remember { mutableStateOf("johnd") }
+                var email by remember { mutableStateOf("") }
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    singleLine = true,
+                    isError = uiState.value == UiState.ErrorEmail || uiState.value == UiState.Error
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                var user by remember { mutableStateOf("") }
                 TextField(
                     value = user,
                     onValueChange = { user = it },
@@ -76,7 +83,7 @@ fun LoginPanel(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-                var pass by remember { mutableStateOf("m38rmF\$") }
+                var pass by remember { mutableStateOf("") }
                 TextField(
                     value = pass,
                     onValueChange = { pass = it },
@@ -90,16 +97,16 @@ fun LoginPanel(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { viewModel.onEvent(UiEvent.Login(user, pass)) },
+                    onClick = { viewModel.onEvent(UiEvent.Register(user, pass, email)) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Se connecter")
+                    Text("S'inscrire")
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                TextButton(onClick = onRegisterClick) {
-                    Text("S'inscrire")
+                TextButton(onClick = onBackToLogin) {
+                    Text("se connecter")
                 }
 
                 TextButton(onClick = onClose) {

@@ -50,8 +50,10 @@ import com.mscode.presentation.login.component.LoginPanel
 import com.mscode.presentation.login.model.UiState.Logged
 import com.mscode.presentation.login.viewmodel.LoginViewModel
 import com.mscode.presentation.menu.component.MenuAnimated
+import com.mscode.presentation.register.component.RegisterPanel
+import com.mscode.presentation.register.model.UiState.Registered
+import com.mscode.presentation.register.viewmodel.RegisterViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 val lightBackground = Color(0xFFF5F5F5)
 
@@ -120,6 +122,7 @@ fun ProductsScreenWithSidePanel(
             animationSpec = tween(durationMillis = 300),
             label = "PanelSlide"
         )
+        val registerViewModel: RegisterViewModel = hiltViewModel()
         val loginViewModel: LoginViewModel = hiltViewModel()
 
         Box(
@@ -138,7 +141,11 @@ fun ProductsScreenWithSidePanel(
             AnimatedContent(
                 targetState = panelContentState,
                 transitionSpec = {
-                    slideInHorizontally { width -> -width } with slideOutHorizontally { width -> width }
+                    if (targetState == PanelContentState.REGISTER) {
+                        slideInHorizontally { width -> width } with slideOutHorizontally { width -> -width }
+                    } else {
+                        slideInHorizontally { width -> -width } with slideOutHorizontally { width -> width }
+                    }
                 },
                 label = "PanelSlideAnimation"
             ) { state ->
@@ -146,7 +153,14 @@ fun ProductsScreenWithSidePanel(
                     PanelContentState.LOGIN -> LoginPanel(
                         viewModel = loginViewModel,
                         onClose = { panelOpen = false },
+                        onRegisterClick = { panelContentState = PanelContentState.REGISTER },
                         onGoToMenu = { panelContentState = PanelContentState.MENU }
+                    )
+
+                    PanelContentState.REGISTER -> RegisterPanel(
+                        viewModel = registerViewModel,
+                        onClose = { panelOpen = false },
+                        onBackToLogin = { panelContentState = PanelContentState.LOGIN }
                     )
 
                     PanelContentState.MENU -> {
@@ -164,8 +178,20 @@ fun ProductsScreenWithSidePanel(
             }
         }
         val context = LocalContext.current
+        val uiStateRegister = registerViewModel.uiState.collectAsState()
         val uiStateLogin = loginViewModel.uiState.collectAsState()
-        LaunchedEffect(uiStateLogin.value,) {
+        LaunchedEffect(uiStateRegister.value, uiStateLogin.value) {
+            if (uiStateRegister.value == Registered) {
+                repeat(2) { // 2 x 4s = 8s environ
+                    Toast.makeText(
+                        context,
+                        "Vous êtes inscrits mais l'api ne permet d'avoir de nouveau utilisateurs",
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                    delay(4000) // attendre que le toast se termine
+                }
+            }
             if (uiStateLogin.value == Logged) {
                 repeat(2) { // 2 x 4s = 8s environ
                     Toast.makeText(context, "Vous êtes loggé avec succès", Toast.LENGTH_LONG)
@@ -273,5 +299,5 @@ fun ProductItem(
 }
 
 enum class PanelContentState {
-    LOGIN, MENU
+    LOGIN, MENU, REGISTER
 }
