@@ -1,5 +1,6 @@
 package com.mscode.data.products.repository
 
+import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.api.ProductsApi
 import com.mscode.data.products.datasource.ProductLocalDataSource
@@ -24,6 +25,7 @@ class ProductsRepositoryImplTest {
     private lateinit var productsMapper: ProductsMapper
     private lateinit var localProductsDataSource: ProductLocalDataSource
     private lateinit var repository: ProductsRepositoryImpl
+    private lateinit var favoriteLocalDataSource: FavoriteLocalDataSource
 
     private val testUrl = Url(url_products, "https://example.com")
 
@@ -32,12 +34,14 @@ class ProductsRepositoryImplTest {
         localConfigDataSource = mockk()
         retrofitFactory = mockk()
         productsMapper = mockk()
+        favoriteLocalDataSource = mockk()
         localProductsDataSource = mockk(relaxed = true)
 
         repository = ProductsRepositoryImpl(
             localConfigDataSource,
             retrofitFactory,
             productsMapper,
+            favoriteLocalDataSource,
             localProductsDataSource
         )
     }
@@ -49,10 +53,10 @@ class ProductsRepositoryImplTest {
         val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
         val api: ProductsApi = mockk()
         val remoteDataSource = mockk<ProductRemoteDataSource>()
-
+        coEvery { favoriteLocalDataSource.getFavoriteById(1) } returns null
         every { localConfigDataSource.urls } returns listOf(testUrl).toMutableList()
         every { retrofitFactory.create(testUrl.value, ProductsApi::class.java) } returns api
-        every { productsMapper.toProducts(entity) } returns product
+        every { productsMapper.toProducts(entity, false) } returns product
         coEvery { remoteDataSource.getProducts() } returns WrapperResults.Success(listOf(entity))
         mockkConstructor(ProductRemoteDataSource::class)
         coEvery { anyConstructed<ProductRemoteDataSource>().getProducts() } returns WrapperResults.Success(listOf(entity))
@@ -62,7 +66,7 @@ class ProductsRepositoryImplTest {
 
         // Then
         assertTrue(result is WrapperResults.Success)
-        assertEquals(listOf(product), (result as WrapperResults.Success).data)
+        assertEquals(listOf(product), result.data)
         verify { localProductsDataSource.saveProducts(listOf(product)) }
     }
 
@@ -73,7 +77,7 @@ class ProductsRepositoryImplTest {
         val result = repository.getProducts()
 
         assertTrue(result is WrapperResults.Error)
-        assertEquals("Product URL missing", (result as WrapperResults.Error).exception.message)
+        assertEquals("Product URL missing", result.exception.message)
     }
 
     @Test
@@ -89,6 +93,6 @@ class ProductsRepositoryImplTest {
         val result = repository.getProducts()
 
         assertTrue(result is WrapperResults.Error)
-        assertEquals(exception, (result as WrapperResults.Error).exception)
+        assertEquals(exception, result.exception)
     }
 }

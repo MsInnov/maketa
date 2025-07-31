@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -34,9 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mscode.presentation.home.screen.lightBackground
+import com.mscode.presentation.home.viewmodel.HomeViewModel
 import com.mscode.presentation.login.viewmodel.LoginViewModel
 import com.mscode.presentation.menu.model.UiEvent
 import com.mscode.presentation.menu.model.UiState
@@ -47,9 +50,11 @@ typealias LoginDisconnect = com.mscode.presentation.login.model.UiEvent.Disconne
 
 @Composable
 fun MenuAnimated(
+    homeViewModel: HomeViewModel,
     loginViewModel: LoginViewModel,
     onClose: () -> Unit,
     onGoLogin: () -> Unit,
+    onGoFavorite: () -> Unit,
 ) {
     var visible by remember { mutableStateOf(false) }
     val menuViewModel: MenuViewModel = hiltViewModel()
@@ -61,9 +66,14 @@ fun MenuAnimated(
             onGoLogin()
             return
         }
+        is UiState.Favorite -> {
+            menuViewModel.onEvent(UiEvent.Idle)
+            onGoFavorite()
+            return
+        }
         else -> Unit
     }
-    // Lance l'animation une fois que le composable est affiché
+
     LaunchedEffect(Unit) {
         visible = true
     }
@@ -74,9 +84,11 @@ fun MenuAnimated(
         exit = ExitTransition.None
     ) {
         MenuList(
+            homeViewModel = homeViewModel,
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
+                    "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
                     "Se déconnecter" -> menuViewModel.onEvent(UiEvent.Disconnect)
                 }
             }
@@ -87,12 +99,16 @@ fun MenuAnimated(
 
 @Composable
 fun MenuList(
+    homeViewModel: HomeViewModel,
     onClose: () -> Unit,
     onItemClick: (String) -> Unit
 ) {
     val menuItems = listOf(
+        "Favoris" to Icons.Default.Favorite,
         "Se déconnecter" to Icons.Default.ExitToApp
     )
+    val isFavoriteDisplayed = homeViewModel.uiStateFavorite.collectAsState()
+    val isFavoriteHomeEnabledState = homeViewModel.uiStateFavoriteEnabled.collectAsState()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -107,12 +123,16 @@ fun MenuList(
                 .align(Alignment.Center)
         ) {
             menuItems.forEach { (title, icon) ->
+                val isEnabled = when (title) {
+                    "Favoris" -> isFavoriteHomeEnabledState.value
+                    else -> true
+                }
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
-                        .clickable{ onItemClick(title) }
-                        .alpha(1f),
+                        .clickable(enabled = isEnabled) { onItemClick(title) }
+                        .alpha(if (isEnabled) 1f else 0.4f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -123,7 +143,11 @@ fun MenuList(
                         Icon(
                             imageVector = icon,
                             contentDescription = title,
-                            tint = Primary
+                            tint = if (title == "Favoris") {
+                                if (isFavoriteDisplayed.value) Color.Red else Primary
+                            } else {
+                                Primary
+                            }
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(

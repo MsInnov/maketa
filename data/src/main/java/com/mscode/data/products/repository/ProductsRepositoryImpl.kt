@@ -1,5 +1,6 @@
 package com.mscode.data.products.repository
 
+import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.api.ProductsApi
 import com.mscode.data.products.datasource.ProductLocalDataSource
@@ -15,6 +16,7 @@ class ProductsRepositoryImpl(
     private val localConfigDataSource: LocalConfigDataSource,
     private val retrofitFactory: RetrofitFactory,
     private val productsMapper: ProductsMapper,
+    private val favoritesLocalDataSource: FavoriteLocalDataSource,
     private val localProductsDataSource: ProductLocalDataSource
 ) : ProductsRepository {
 
@@ -28,7 +30,8 @@ class ProductsRepositoryImpl(
             is WrapperResults.Success -> {
                 val products = result.data.map { productsEntity ->
                     productsMapper.toProducts(
-                        productsEntity
+                        productsEntity,
+                        isFavorite(productsEntity.id)
                     )
                 }
                 localProductsDataSource.saveProducts(products)
@@ -38,4 +41,7 @@ class ProductsRepositoryImpl(
             is WrapperResults.Error -> result
         }
     }
+
+    private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
+
 }

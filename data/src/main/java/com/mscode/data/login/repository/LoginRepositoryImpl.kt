@@ -29,6 +29,8 @@ class LoginRepositoryImpl(
         }
     }
 
+    override fun getToken(): String? = loginLocalDataSource.token
+
     override fun removeToken() {
         loginLocalDataSource.saveToken(null)
     }
