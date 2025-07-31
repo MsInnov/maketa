@@ -95,4 +95,26 @@ class ProductsRepositoryImplTest {
         assertTrue(result is WrapperResults.Error)
         assertEquals(exception, result.exception)
     }
+
+    @Test
+    fun `sellProduct returns Success when newProduct call Success`() = runTest {
+        // Given
+        val entity = ProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val api: ProductsApi = mockk()
+        val remoteDataSource = mockk<ProductRemoteDataSource>()
+        every { localConfigDataSource.urls } returns listOf(testUrl).toMutableList()
+        every { retrofitFactory.create(testUrl.value, ProductsApi::class.java) } returns api
+        every { productsMapper.toProductEntity(product) } returns entity
+        coEvery { remoteDataSource.newProduct(entity) } returns WrapperResults.Success(Unit)
+        mockkConstructor(ProductRemoteDataSource::class)
+        coEvery { anyConstructed<ProductRemoteDataSource>().newProduct(entity) } returns WrapperResults.Success(Unit)
+
+        // When
+        val result = repository.sellProduct(product)
+
+        // Then
+        assertTrue(result is WrapperResults.Success)
+        assertEquals(Unit, result.data)
+    }
 }

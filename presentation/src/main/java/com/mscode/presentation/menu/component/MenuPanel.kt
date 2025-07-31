@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -55,6 +56,7 @@ fun MenuAnimated(
     onClose: () -> Unit,
     onGoLogin: () -> Unit,
     onGoFavorite: () -> Unit,
+    onGoSelling: () -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
     val menuViewModel: MenuViewModel = hiltViewModel()
@@ -69,6 +71,11 @@ fun MenuAnimated(
         is UiState.Favorite -> {
             menuViewModel.onEvent(UiEvent.Idle)
             onGoFavorite()
+            return
+        }
+        is UiState.Selling -> {
+            menuViewModel.onEvent(UiEvent.Idle)
+            onGoSelling()
             return
         }
         else -> Unit
@@ -88,6 +95,7 @@ fun MenuAnimated(
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
+                    "Vendre" -> menuViewModel.onEvent(UiEvent.Selling)
                     "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
                     "Se déconnecter" -> menuViewModel.onEvent(UiEvent.Disconnect)
                 }
@@ -104,6 +112,7 @@ fun MenuList(
     onItemClick: (String) -> Unit
 ) {
     val menuItems = listOf(
+        "Vendre" to Icons.Default.Sell,
         "Favoris" to Icons.Default.Favorite,
         "Se déconnecter" to Icons.Default.ExitToApp
     )

@@ -7,6 +7,7 @@ import com.mscode.presentation.menu.model.UiEvent
 import com.mscode.presentation.menu.model.UiEvent.Disconnect
 import com.mscode.presentation.menu.model.UiEvent.Favorite
 import com.mscode.presentation.menu.model.UiEvent.Idle
+import com.mscode.presentation.menu.model.UiEvent.Selling
 import com.mscode.presentation.menu.model.UiState
 import com.mscode.presentation.menu.model.UiState.Disconnected
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,7 @@ class MenuViewModel @Inject constructor(
                     _uiState.value = Disconnected
                 }
                 Favorite -> _uiState.value = UiState.Favorite
+                Selling -> _uiState.value = UiState.Selling
                 Idle -> _uiState.value = UiState.Idle
             }
         }

@@ -14,4 +14,12 @@ class ProductRemoteDataSource @Inject constructor(
     } catch (e: Exception) {
         WrapperResults.Error(e)
     }
+
+    suspend fun newProduct(productEntity: ProductEntity): WrapperResults<Unit> = try {
+        api.newProduct(productEntity).let {
+            WrapperResults.Success(Unit)
+        }
+    } catch (e: Exception) {
+        WrapperResults.Error(e)
+    }
 }

@@ -64,6 +64,11 @@ import com.mscode.presentation.menu.component.MenuAnimated
 import com.mscode.presentation.register.component.RegisterPanel
 import com.mscode.presentation.register.model.UiState.Registered
 import com.mscode.presentation.register.viewmodel.RegisterViewModel
+import com.mscode.presentation.sell.component.SellPanel
+import com.mscode.presentation.sell.model.UiEvent.Idle
+import com.mscode.presentation.sell.model.UiState.Failure
+import com.mscode.presentation.sell.model.UiState.Success
+import com.mscode.presentation.sell.viewmodel.SellViewModel
 import kotlinx.coroutines.delay
 
 val lightBackground = Color(0xFFF5F5F5)
@@ -145,6 +150,7 @@ fun ProductsScreenWithSidePanel(
         )
         val registerViewModel: RegisterViewModel = hiltViewModel()
         val loginViewModel: LoginViewModel = hiltViewModel()
+        val sellViewModel: SellViewModel = hiltViewModel()
 
         Box(
             modifier = Modifier
@@ -184,6 +190,15 @@ fun ProductsScreenWithSidePanel(
                         onBackToLogin = { panelContentState = PanelContentState.LOGIN }
                     )
 
+                    PanelContentState.SELLING -> SellPanel(
+                        onClose = {
+                            panelOpen = false
+                            panelContentState = PanelContentState.MENU
+                        },
+                        onSubmit = { panelOpen = false },
+                        sellViewModel = sellViewModel
+                    )
+
                     PanelContentState.MENU -> {
                         MenuAnimated(
                             homeViewModel = homeViewModel,
@@ -200,6 +215,10 @@ fun ProductsScreenWithSidePanel(
                             onGoFavorite = {
                                 panelOpen = false
                                 homeViewModel.onEvent(UiEvent.LoadProductsFavorites)
+                            },
+                            onGoSelling = {
+                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
+                                panelContentState = PanelContentState.SELLING
                             }
                         )
                     }
@@ -209,6 +228,31 @@ fun ProductsScreenWithSidePanel(
         val context = LocalContext.current
         val uiStateRegister = registerViewModel.uiState.collectAsState()
         val uiStateLogin = loginViewModel.uiState.collectAsState()
+        val uiStateSell = sellViewModel.uiState.collectAsState()
+        LaunchedEffect(uiStateSell.value) {
+            if (uiStateSell.value == Success) {
+                Toast.makeText(context, "Votre article a été ajouté avec succès", Toast.LENGTH_LONG)
+                    .show()
+                delay(4000)
+                Toast.makeText(
+                    context,
+                    "Mais l'API ne permet pas d'avoir de nouveaux articles",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            if (uiStateSell.value == Failure) {
+                repeat(2) { // 2 x 4s = 8s environ
+                    Toast.makeText(
+                        context,
+                        "Votre article n'a paas pu être ajouté",
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                    delay(4000) // attendre que le toast se termine
+                }
+            }
+            sellViewModel.onEvent(Idle)
+        }
         LaunchedEffect(uiStateRegister.value, uiStateLogin.value) {
             if (uiStateRegister.value == Registered) {
                 repeat(2) { // 2 x 4s = 8s environ
@@ -359,5 +403,5 @@ fun ProductItem(
 }
 
 enum class PanelContentState {
-    LOGIN, MENU, REGISTER
+    LOGIN, MENU, REGISTER, SELLING
 }
