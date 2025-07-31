@@ -5,6 +5,7 @@ import com.mscode.data.login.repository.LoginRepositoryImpl
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.remoteconfig.datasource.LocalConfigDataSource
 import com.mscode.domain.login.repository.LoginRepository
+import com.mscode.domain.login.usecase.GetTokenUseCase
 import com.mscode.domain.login.usecase.LoginUseCase
 import com.mscode.domain.login.usecase.RemoveTokenUseCase
 import dagger.Module
@@ -29,6 +30,11 @@ object RepositoryModule {
     @Singleton
     fun provideLoginUseCase(repo: LoginRepository): LoginUseCase =
         LoginUseCase(repo)
+
+    @Provides
+    @Singleton
+    fun provideGetTokenUseCase(repo: LoginRepository): GetTokenUseCase =
+        GetTokenUseCase(repo)
 
     @Provides
     @Singleton

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mscode.domain.login.usecase.RemoveTokenUseCase
 import com.mscode.presentation.menu.model.UiEvent
 import com.mscode.presentation.menu.model.UiEvent.Disconnect
+import com.mscode.presentation.menu.model.UiEvent.Favorite
 import com.mscode.presentation.menu.model.UiEvent.Idle
 import com.mscode.presentation.menu.model.UiState
 import com.mscode.presentation.menu.model.UiState.Disconnected
@@ -29,7 +30,7 @@ class MenuViewModel @Inject constructor(
                     removeTokenUseCase()
                     _uiState.value = Disconnected
                 }
-
+                Favorite -> _uiState.value = UiState.Favorite
                 Idle -> _uiState.value = UiState.Idle
             }
         }

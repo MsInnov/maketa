@@ -4,5 +4,6 @@ sealed class UiState {
 
     data object Idle : UiState()
     data object Disconnected : UiState()
+    data object Favorite : UiState()
 
 }

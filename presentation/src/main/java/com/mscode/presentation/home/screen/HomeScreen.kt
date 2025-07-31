@@ -21,6 +21,13 @@ import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -40,9 +48,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mscode.presentation.common.ErrorScreen
+import com.mscode.presentation.home.model.UiEvent
+import com.mscode.presentation.home.model.UiEvent.UpdateFavorite
 import com.mscode.presentation.home.model.UiProducts
 import com.mscode.presentation.home.model.UiState
 import com.mscode.presentation.home.viewmodel.HomeViewModel
@@ -70,7 +81,11 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 
         is UiState.Error -> ErrorScreen()
         is UiState.Products -> ProductsScreenWithSidePanel(
-            products = state.products
+            homeViewModel = homeViewModel,
+            products = state.products,
+            goToHome = {
+                homeViewModel.onEvent(UiEvent.LoadProduct)
+            }
         )
     }
 }
@@ -78,7 +93,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProductsScreenWithSidePanel(
-    products: List<UiProducts>
+    homeViewModel: HomeViewModel,
+    products: List<UiProducts>,
+    goToHome: () -> Unit
 ) {
     var panelOpen by remember { mutableStateOf(false) }
     var panelContentState by remember { mutableStateOf(PanelContentState.LOGIN) }
@@ -88,7 +105,11 @@ fun ProductsScreenWithSidePanel(
             items(products.size) { index ->
                 val product = products[index]
                 ProductItem(
-                    product = product
+                    homeViewModel = homeViewModel,
+                    product = product,
+                    onFavoriteClick = { clickedFavoriteProduct ->
+                        homeViewModel.onEvent(UpdateFavorite(clickedFavoriteProduct))
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -165,12 +186,20 @@ fun ProductsScreenWithSidePanel(
 
                     PanelContentState.MENU -> {
                         MenuAnimated(
+                            homeViewModel = homeViewModel,
                             loginViewModel = loginViewModel,
                             onClose = {
+                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
                                 panelOpen = false
                             },
                             onGoLogin = {
+                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
+                                goToHome()
                                 panelContentState = PanelContentState.LOGIN
+                            },
+                            onGoFavorite = {
+                                panelOpen = false
+                                homeViewModel.onEvent(UiEvent.LoadProductsFavorites)
                             }
                         )
                     }
@@ -205,17 +234,20 @@ fun ProductsScreenWithSidePanel(
 
 @Composable
 fun ProductItem(
-    product: UiProducts
+    homeViewModel: HomeViewModel,
+    product: UiProducts,
+    onFavoriteClick: (UiProducts) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val isFavoriteIsVisible = homeViewModel.uiStateFavoriteDisplay.collectAsState().value
 
-    val scalePurchase by animateFloatAsState(
-        targetValue = if (product.isCart) 1.3f else 1f,
+    val scaleFavorite by animateFloatAsState(
+        targetValue = if (product.isFavorite) 1.3f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
         ),
-        label = "PurchaseScale"
+        label = "HeartScale"
     )
 
     val imageHeight by animateDpAsState(
@@ -235,8 +267,36 @@ fun ProductItem(
         shape = RoundedCornerShape(12.dp)
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+            val (content, heartIcon) = createRefs()
+
+            if (isFavoriteIsVisible) {
+                IconButton(
+                    onClick = { onFavoriteClick(product) },
+                    modifier = Modifier
+                        .constrainAs(heartIcon) {
+                            top.linkTo(parent.top, margin = 8.dp)
+                            end.linkTo(parent.end, margin = 8.dp)
+                            bottom.linkTo(content.top)
+                        }
+                        .zIndex(1f)
+                ) {
+                    Icon(
+                        imageVector = if (product.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Ajouter aux favoris",
+                        tint = if (product.isFavorite) Color.Red else Color.Gray,
+                        modifier = Modifier.scale(scaleFavorite)
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier
+                    .constrainAs(content) {
+                        top.linkTo(heartIcon.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }
                     .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
             ) {
                 Text(

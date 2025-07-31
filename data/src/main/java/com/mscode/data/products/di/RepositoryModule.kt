@@ -1,5 +1,6 @@
 package com.mscode.data.products.di
 
+import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.datasource.ProductLocalDataSource
 import com.mscode.data.products.mapper.ProductsMapper
@@ -26,8 +27,9 @@ object RepositoryModule {
         localConfigDataSource: LocalConfigDataSource,
         retrofit: RetrofitFactory,
         mapper: ProductsMapper,
+        favoritesLocalDataSource: FavoriteLocalDataSource,
         localProductsDataSource: ProductLocalDataSource
-    ): ProductsRepository = ProductsRepositoryImpl(localConfigDataSource, retrofit, mapper, localProductsDataSource)
+    ): ProductsRepository = ProductsRepositoryImpl(localConfigDataSource, retrofit, mapper, favoritesLocalDataSource, localProductsDataSource)
 
     @Provides
     @Singleton
