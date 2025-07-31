@@ -42,6 +42,15 @@ class ProductsRepositoryImpl(
         }
     }
 
+    override suspend fun sellProduct(product: Product): WrapperResults<Unit> {
+        val baseUrl = localConfigDataSource.urls.firstOrNull { it.key == url_products }
+            ?: return WrapperResults.Error(Exception("Product URL missing"))
+        val api = retrofitFactory.create(baseUrl.value, ProductsApi::class.java)
+        val remoteDataSource = ProductRemoteDataSource(api)
+
+        return remoteDataSource.newProduct(productsMapper.toProductEntity(product))
+    }
+
     private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
 
 }

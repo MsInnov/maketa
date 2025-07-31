@@ -38,6 +38,17 @@ class MenuViewModelTest {
     }
 
     @Test
+    fun `onEvent Selling should call removeTokenUseCase and update uiState to Selling`() = runTest {
+        coEvery { removeTokenUseCase.invoke() } returns Unit
+
+        viewModel.onEvent(UiEvent.Selling)
+
+        testScheduler.runCurrent()
+
+        assertEquals(UiState.Selling, viewModel.uiState.value)
+    }
+
+    @Test
     fun `onEvent Disconnect should call removeTokenUseCase and update uiState to Disconnected`() = runTest {
         coEvery { removeTokenUseCase.invoke() } returns Unit
 

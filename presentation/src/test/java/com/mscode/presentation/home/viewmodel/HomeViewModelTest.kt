@@ -44,6 +44,7 @@ class HomeViewModelTest {
     private val product = Product(1, "Title", 10.0, "Desc", "Cat", "Img", false)
     private val favoriteProducts = FavoriteProducts(1, "Title", 10.0, "Desc", "Cat", "Img", false)
     private val uiProducts = UiProducts(1, "Title", 10.0, "Desc", "Cat", "Img", false, false)
+
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)

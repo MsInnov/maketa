@@ -17,4 +17,15 @@ class ProductsMapper {
         image = productEntity.image,
         isFavorite = isFavorite
     )
+
+    fun toProductEntity(
+        products: Product
+    ) = ProductEntity(
+        id = products.id,
+        title = products.title,
+        price = products.price,
+        description = products.description,
+        category = products.category,
+        image = products.image
+    )
 }

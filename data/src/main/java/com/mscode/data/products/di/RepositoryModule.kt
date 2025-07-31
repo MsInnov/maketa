@@ -8,6 +8,7 @@ import com.mscode.data.products.repository.ProductsRepositoryImpl
 import com.mscode.data.remoteconfig.datasource.LocalConfigDataSource
 import com.mscode.domain.products.repository.ProductsRepository
 import com.mscode.domain.products.usecase.GetProductsUseCase
+import com.mscode.domain.products.usecase.SellProductUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +31,10 @@ object RepositoryModule {
         favoritesLocalDataSource: FavoriteLocalDataSource,
         localProductsDataSource: ProductLocalDataSource
     ): ProductsRepository = ProductsRepositoryImpl(localConfigDataSource, retrofit, mapper, favoritesLocalDataSource, localProductsDataSource)
+
+    @Provides
+    fun provideSellProductUseCase(repo: ProductsRepository): SellProductUseCase =
+        SellProductUseCase(repo)
 
     @Provides
     @Singleton

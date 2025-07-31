@@ -51,4 +51,34 @@ class ProductRemoteDataSourceTest {
         assertTrue(result is WrapperResults.Error)
         assertEquals(exception, (result as WrapperResults.Error).exception)
     }
+
+    @Test
+    fun `newProduct should return Success when API call is successful`() = runTest {
+        // Given
+        val products = ProductEntity(1, "Phone", 1000.0, "desc", "cat", "img")
+
+        coEvery { api.newProduct(products)} returns products
+
+        // When
+        val result = dataSource.newProduct(products)
+
+        // Then
+        assertTrue(result is WrapperResults.Success)
+        assertEquals(Unit, (result as WrapperResults.Success).data)
+    }
+
+    @Test
+    fun `newProduct should return Error when API throws exception`() = runTest {
+        // Given
+        val products = ProductEntity(1, "Phone", 1000.0, "desc", "cat", "img")
+        val exception = RuntimeException("Network error")
+        coEvery { api.newProduct(products)} throws exception
+
+        // When
+        val result = dataSource.newProduct(products)
+
+        // Then
+        assertTrue(result is WrapperResults.Error)
+        assertEquals(exception, (result as WrapperResults.Error).exception)
+    }
 }

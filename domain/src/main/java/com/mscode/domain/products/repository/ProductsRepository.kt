@@ -6,5 +6,6 @@ import com.mscode.domain.products.model.Product
 interface ProductsRepository {
 
     suspend fun getProducts(): WrapperResults<List<Product>>
+    suspend fun sellProduct(product: Product): WrapperResults<Unit>
 
 }
