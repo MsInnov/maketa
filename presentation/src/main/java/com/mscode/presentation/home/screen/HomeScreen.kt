@@ -20,12 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,10 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mscode.presentation.cart.component.CartPanel
+import com.mscode.presentation.cart.model.UiEvent.GetCarts
+import com.mscode.presentation.cart.viewmodel.CartViewModel
 import com.mscode.presentation.common.ErrorScreen
+import com.mscode.presentation.home.mapper.CustomBottomSheet
 import com.mscode.presentation.home.model.UiEvent
 import com.mscode.presentation.home.model.UiEvent.UpdateFavorite
-import com.mscode.presentation.home.model.UiProducts
+import com.mscode.presentation.home.model.UiProduct
 import com.mscode.presentation.home.model.UiState
 import com.mscode.presentation.home.viewmodel.HomeViewModel
 import com.mscode.presentation.login.component.LoginPanel
@@ -70,6 +77,7 @@ import com.mscode.presentation.sell.model.UiState.Failure
 import com.mscode.presentation.sell.model.UiState.Success
 import com.mscode.presentation.sell.viewmodel.SellViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 val lightBackground = Color(0xFFF5F5F5)
 
@@ -99,12 +107,18 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 @Composable
 fun ProductsScreenWithSidePanel(
     homeViewModel: HomeViewModel,
-    products: List<UiProducts>,
+    products: List<UiProduct>,
     goToHome: () -> Unit
 ) {
     var panelOpen by remember { mutableStateOf(false) }
     var panelContentState by remember { mutableStateOf(PanelContentState.LOGIN) }
     val panelWidth = 320.dp
+    val coroutineScope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+    val cartViewModel: CartViewModel = hiltViewModel()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(products.size) { index ->
@@ -114,6 +128,9 @@ fun ProductsScreenWithSidePanel(
                     product = product,
                     onFavoriteClick = { clickedFavoriteProduct ->
                         homeViewModel.onEvent(UpdateFavorite(clickedFavoriteProduct))
+                    },
+                    onCartClick = { clickedCartProduct ->
+                        homeViewModel.onEvent(UiEvent.UpdateCart(clickedCartProduct))
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -200,15 +217,16 @@ fun ProductsScreenWithSidePanel(
                     )
 
                     PanelContentState.MENU -> {
+                        homeViewModel.onEvent(UiEvent.EnableCart)
                         MenuAnimated(
                             homeViewModel = homeViewModel,
                             loginViewModel = loginViewModel,
                             onClose = {
-                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
+                                homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
                                 panelOpen = false
                             },
                             onGoLogin = {
-                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
+                                homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
                                 goToHome()
                                 panelContentState = PanelContentState.LOGIN
                             },
@@ -217,8 +235,16 @@ fun ProductsScreenWithSidePanel(
                                 homeViewModel.onEvent(UiEvent.LoadProductsFavorites)
                             },
                             onGoSelling = {
-                                homeViewModel.onEvent(UiEvent.DisplayFavorites)
+                                homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
                                 panelContentState = PanelContentState.SELLING
+                            },
+                            onGoCart = {
+                                homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
+                                panelOpen = false
+                                coroutineScope.launch {
+                                    cartViewModel.onEvent(GetCarts)
+                                    bottomSheetState.show()
+                                }
                             }
                         )
                     }
@@ -273,18 +299,32 @@ fun ProductsScreenWithSidePanel(
                 }
             }
         }
+        CustomBottomSheet(
+            sheetState = bottomSheetState,
+            sheetContent = {
+                CartPanel(
+                    viewModel = cartViewModel,
+                    onCloseRequest = {
+                        coroutineScope.launch { bottomSheetState.hide() }
+                    }
+                )
+            }
+        ) {
+            homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
+        }
     }
 }
 
 @Composable
 fun ProductItem(
     homeViewModel: HomeViewModel,
-    product: UiProducts,
-    onFavoriteClick: (UiProducts) -> Unit,
+    product: UiProduct,
+    onFavoriteClick: (UiProduct) -> Unit,
+    onCartClick: (UiProduct) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val isFavoriteIsVisible = homeViewModel.uiStateFavoriteDisplay.collectAsState().value
-
+    val isFavoriteAndCartIsVisible = homeViewModel.uiStateFavoriteAndCartDisplay.collectAsState().value
+    val isCart = product.isCart
     val scaleFavorite by animateFloatAsState(
         targetValue = if (product.isFavorite) 1.3f else 1f,
         animationSpec = spring(
@@ -292,6 +332,14 @@ fun ProductItem(
             stiffness = Spring.StiffnessMedium
         ),
         label = "HeartScale"
+    )
+    val scaleCart by animateFloatAsState(
+        targetValue = if (product.isCart) 1.3f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "CartScale"
     )
 
     val imageHeight by animateDpAsState(
@@ -311,9 +359,9 @@ fun ProductItem(
         shape = RoundedCornerShape(12.dp)
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
-            val (content, heartIcon) = createRefs()
+            val (content, heartIcon, cartIcon) = createRefs()
 
-            if (isFavoriteIsVisible) {
+            if (isFavoriteAndCartIsVisible) {
                 IconButton(
                     onClick = { onFavoriteClick(product) },
                     modifier = Modifier
@@ -329,6 +377,24 @@ fun ProductItem(
                         contentDescription = "Ajouter aux favoris",
                         tint = if (product.isFavorite) Color.Red else Color.Gray,
                         modifier = Modifier.scale(scaleFavorite)
+                    )
+                }
+
+                IconButton(
+                    onClick = { onCartClick(product) },
+                    modifier = Modifier
+                        .constrainAs(cartIcon) {
+                            top.linkTo(parent.top, margin = 8.dp)
+                            start.linkTo(parent.start, margin = 8.dp)
+                            bottom.linkTo(content.top)
+                        }
+                        .zIndex(1f)
+                ) {
+                    Icon(
+                        imageVector = if (isCart) Icons.Filled.ShoppingCart else Icons.Filled.ShoppingCartCheckout,
+                        contentDescription = "Ajouter au panier",
+                        tint = if (isCart) Color.Blue else Color.Gray,
+                        modifier = Modifier.scale(scaleCart)
                     )
                 }
             }

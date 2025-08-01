@@ -1,7 +1,7 @@
 package com.mscode.domain.favorites.usecase
 
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -16,7 +16,7 @@ class ToggleFavoriteUseCaseTest {
     private lateinit var favoritesRepository: FavoriteRepository
     private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
 
-    private val favorite = FavoriteProducts(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val favorite = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 
 
     @BeforeEach

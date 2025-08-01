@@ -2,6 +2,7 @@ package com.mscode.presentation.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mscode.domain.cart.usecase.ToggleCartUseCase
 import com.mscode.domain.common.WrapperResults.Error
 import com.mscode.domain.common.WrapperResults.Success
 import com.mscode.domain.favorites.usecase.GetAllFavoritesFlowUseCase
@@ -10,13 +11,15 @@ import com.mscode.domain.favorites.usecase.SaveFavoriteIsDisplayedUseCase
 import com.mscode.domain.favorites.usecase.ToggleFavoriteUseCase
 import com.mscode.domain.login.usecase.GetTokenUseCase
 import com.mscode.domain.products.usecase.GetProductsUseCase
+import com.mscode.domain.products.usecase.IsCartFlowUseCase
 import com.mscode.presentation.home.mapper.ProductsUiMapper
 import com.mscode.presentation.home.model.UiEvent
 import com.mscode.presentation.home.model.UiState
-import com.mscode.presentation.home.model.UiProducts
+import com.mscode.presentation.home.model.UiProduct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,9 +29,11 @@ class HomeViewModel @Inject constructor(
     private val getTokenUseCase: GetTokenUseCase,
     private val getAllFavoritesUseCase: GetAllFavoritesUseCase,
     private val getAllFavoritesFlowUseCase: GetAllFavoritesFlowUseCase,
+    private val toggleCartUseCase: ToggleCartUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getProductsUseCase: GetProductsUseCase,
     private val productsUiMapper: ProductsUiMapper,
+    private val isCartFlowUseCase: IsCartFlowUseCase,
     private val saveFavoriteIsDisplayed: SaveFavoriteIsDisplayedUseCase
 ) : ViewModel() {
 
@@ -41,11 +46,14 @@ class HomeViewModel @Inject constructor(
     private val _uiStateFavoriteEnabled = MutableStateFlow(false)
     val uiStateFavoriteEnabled: StateFlow<Boolean> = _uiStateFavoriteEnabled
 
-    private val _uiStateFavoriteDisplay = MutableStateFlow(false)
-    val uiStateFavoriteDisplay: StateFlow<Boolean> = _uiStateFavoriteDisplay
+    private val _uiStateCartEnabled = MutableStateFlow(false)
+    val uiStateCartEnabled: StateFlow<Boolean> = _uiStateCartEnabled
+
+    private val _uiStateFavoriteAndCartDisplay = MutableStateFlow(false)
+    val uiStateFavoriteAndCartDisplay: StateFlow<Boolean> = _uiStateFavoriteAndCartDisplay
 
     init {
-        getProducts()
+        getProductsAndObserveCart()
         observeFavorites()
     }
 
@@ -53,19 +61,36 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             when (uiEvent) {
 
-                UiEvent.DisplayFavorites -> _uiStateFavoriteDisplay.value = getTokenUseCase() != null
+                UiEvent.DisplayFavoritesAndCart -> _uiStateFavoriteAndCartDisplay.value = getTokenUseCase() != null
 
                 is UiEvent.UpdateFavorite -> {
                     toggleFavoriteUseCase(
-                        favoriteProducts = productsUiMapper.toFavoriteProducts(uiEvent.products),
-                        isFavoriteProducts = uiEvent.products.isFavorite
+                        favoriteProducts = productsUiMapper.toFavoriteProduct(uiEvent.product),
+                        isFavoriteProducts = uiEvent.product.isFavorite
                     ).apply {
                         if (this is Success) {
                             _uiState.update { state ->
                                 if (state is UiState.Products) {
                                     val productList = getCurrentProductListForUpdate()
-                                    val updatedList = updateFavoriteProductsList(uiEvent.products, productList)
+                                    val updatedList = updateFavoriteProductsList(uiEvent.product, productList)
                                     state.copy(products = updatedList)
+                                } else state
+                            }
+                        }
+                    }
+                }
+
+                is UiEvent.UpdateCart -> {
+                    val isInCart = uiEvent.product.isCart
+                    toggleCartUseCase(
+                        cartProduct = productsUiMapper.toCartProduct(uiEvent.product),
+                        isCartProducts = isInCart
+                    ).apply {
+                        if (this is Success) {
+                            _uiState.update { state ->
+                                if (state is UiState.Products) {
+                                    val updatedProducts = updateCartList(uiEvent.product, state.products)
+                                    state.copy(products = updatedProducts)
                                 } else state
                             }
                         }
@@ -84,6 +109,13 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
+                UiEvent.EnableCart -> _uiState.value.apply {
+                    if(this is UiState.Products) {
+                        _uiStateCartEnabled.value =
+                            this.products.firstOrNull { it.isCart } != null
+                    }
+                }
+
                 UiEvent.LoadProduct -> getProductsUseCase().apply {
                     when (this) {
                         is Success -> {
@@ -93,8 +125,9 @@ class HomeViewModel @Inject constructor(
                             }
                             _uiState.value = UiState.Products(
                                 products = data.map { product ->
-                                    productsUiMapper.toProductsUi(
-                                        products = product
+                                    productsUiMapper.toProductUi(
+                                        product = product,
+                                        isCart = isCartFlowUseCase().first().firstOrNull { it.first == product.id }?.second ?: false
                                     )
                                 },
                             )
@@ -109,7 +142,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun buildFavoriteProductsUiState(): UiState {
         val favorites = getAllFavoritesUseCase()
         return UiState.Products(
-            products = favorites.map { productsUiMapper.toProductsUi(it) }
+            products = favorites.map { productsUiMapper.toProductUi(it) }
         )
     }
 
@@ -118,8 +151,8 @@ class HomeViewModel @Inject constructor(
             is Success -> {
                 UiState.Products(
                     products = result.data.map { product ->
-                        productsUiMapper.toProductsUi(
-                            products = product
+                        productsUiMapper.toProductUi(
+                            product = product
                         )
                     }
                 )
@@ -129,9 +162,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateFavoriteProductsList(
-        uiProduct: UiProducts,
-        currentList: List<UiProducts>
-    ): List<UiProducts> {
+        uiProduct: UiProduct,
+        currentList: List<UiProduct>
+    ): List<UiProduct> {
         return currentList.map {
             if (it.id == uiProduct.id) {
                 it.copy(isFavorite = !uiProduct.isFavorite)
@@ -141,23 +174,56 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getCurrentProductListForUpdate(): List<UiProducts> {
+    private fun updateCartList(
+        productToUpdate: UiProduct,
+        products: List<UiProduct>
+    ): List<UiProduct> {
+        return products.map { product ->
+            if (product.id == productToUpdate.id) {
+                product.copy(isCart = !productToUpdate.isCart)
+            } else {
+                product
+            }
+        }
+    }
+
+    private suspend fun getCurrentProductListForUpdate(): List<UiProduct> {
         return if (_uiStateFavorite.value) {
-            getAllFavoritesUseCase().map(productsUiMapper::toProductsUi)
+            getAllFavoritesUseCase().map(productsUiMapper::toProductUi)
         } else {
             (_uiState.value as? UiState.Products)?.products ?: emptyList()
         }
     }
 
 
-    private fun getProducts() {
+    private fun getProductsAndObserveCart() {
         viewModelScope.launch {
             when (val result = getProductsUseCase()) {
                 is Success -> {
-                    val mappedProducts = result.data.map(productsUiMapper::toProductsUi)
+                    val mappedProducts = result.data.map(productsUiMapper::toProductUi)
                     _uiState.value = UiState.Products(products = mappedProducts)
+
+                    observeCartChanges()
                 }
                 is Error -> _uiState.value = UiState.Error
+            }
+        }
+    }
+
+    private fun observeCartChanges() {
+        viewModelScope.launch {
+            isCartFlowUseCase().collect { cartList ->
+                _uiState.update { state ->
+                    if (state is UiState.Products) {
+                        state.copy(
+                            products = state.products.map { product ->
+                                val isInCart =
+                                    cartList.firstOrNull { it.first == product.id }?.second ?: false
+                                product.copy(isCart = isInCart)
+                            }
+                        )
+                    } else state
+                }
             }
         }
     }

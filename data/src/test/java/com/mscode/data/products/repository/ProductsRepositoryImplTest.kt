@@ -1,5 +1,7 @@
 package com.mscode.data.products.repository
 
+import com.mscode.data.cart.datasource.CartLocalDataSource
+import com.mscode.data.cart.model.CartProductEntity
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.api.ProductsApi
@@ -13,6 +15,8 @@ import com.mscode.data.remoteconfig.model.url_products
 import com.mscode.domain.common.WrapperResults
 import com.mscode.domain.products.model.Product
 import io.mockk.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Test
@@ -26,6 +30,7 @@ class ProductsRepositoryImplTest {
     private lateinit var localProductsDataSource: ProductLocalDataSource
     private lateinit var repository: ProductsRepositoryImpl
     private lateinit var favoriteLocalDataSource: FavoriteLocalDataSource
+    private lateinit var  cartLocalDataSource: CartLocalDataSource
 
     private val testUrl = Url(url_products, "https://example.com")
 
@@ -35,6 +40,7 @@ class ProductsRepositoryImplTest {
         retrofitFactory = mockk()
         productsMapper = mockk()
         favoriteLocalDataSource = mockk()
+        cartLocalDataSource = mockk()
         localProductsDataSource = mockk(relaxed = true)
 
         repository = ProductsRepositoryImpl(
@@ -42,6 +48,7 @@ class ProductsRepositoryImplTest {
             retrofitFactory,
             productsMapper,
             favoriteLocalDataSource,
+            cartLocalDataSource,
             localProductsDataSource
         )
     }
@@ -116,5 +123,20 @@ class ProductsRepositoryImplTest {
         // Then
         assertTrue(result is WrapperResults.Success)
         assertEquals(Unit, result.data)
+    }
+
+    @Test
+    fun `isCartProducts returns flow when getCartByFlow return isCart and localProductsDataSource return product`() = runTest {
+        // Given
+        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+
+        every { cartLocalDataSource.getCartByFlow() } returns flowOf(listOf(cartEntity))
+        every { localProductsDataSource.products } returns listOf(product)
+        // When
+        val result = repository.isCartProducts()
+
+        // Then
+        assertEquals(listOf(1 to true), result.first())
     }
 }

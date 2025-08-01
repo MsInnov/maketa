@@ -1,6 +1,6 @@
 package com.mscode.domain.favorites.usecase
 
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -15,7 +15,7 @@ class GetAllFavoritesUseCaseTest {
     private lateinit var favoritesRepository: FavoriteRepository
     private lateinit var getAllFavoritesUseCase: GetAllFavoritesUseCase
 
-    private val favoriteProducts = FavoriteProducts(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val favoriteProducts = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 
     @BeforeEach
     fun setUp() {
