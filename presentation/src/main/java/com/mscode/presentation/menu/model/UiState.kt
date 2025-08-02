@@ -7,5 +7,6 @@ sealed class UiState {
     data object Favorite : UiState()
     data object Selling : UiState()
     data object Cart : UiState()
+    data object Account : UiState()
 
 }
