@@ -1,5 +1,6 @@
 package com.mscode.data.products.repository
 
+import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.api.ProductsApi
@@ -11,12 +12,15 @@ import com.mscode.data.remoteconfig.model.url_products
 import com.mscode.domain.common.WrapperResults
 import com.mscode.domain.products.model.Product
 import com.mscode.domain.products.repository.ProductsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ProductsRepositoryImpl(
     private val localConfigDataSource: LocalConfigDataSource,
     private val retrofitFactory: RetrofitFactory,
     private val productsMapper: ProductsMapper,
     private val favoritesLocalDataSource: FavoriteLocalDataSource,
+    private val cartLocalDataSource: CartLocalDataSource,
     private val localProductsDataSource: ProductLocalDataSource
 ) : ProductsRepository {
 
@@ -50,6 +54,18 @@ class ProductsRepositoryImpl(
 
         return remoteDataSource.newProduct(productsMapper.toProductEntity(product))
     }
+
+    override suspend fun isCartProducts(): Flow<List<Pair<Int, Boolean>>> =
+        cartLocalDataSource.getCartByFlow().map { carts ->
+            localProductsDataSource.products.map { product ->
+                val cart = carts.firstOrNull { it.id == product.id }
+                if(cart == null) {
+                    product.id to false
+                } else {
+                    product.id to true
+                }
+            }
+        }
 
     private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
 

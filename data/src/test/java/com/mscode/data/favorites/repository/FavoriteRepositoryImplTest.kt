@@ -4,7 +4,7 @@ import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.mapper.FavoriteMapper
 import com.mscode.data.favorites.model.FavoriteEntity
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.products.model.Product
 import io.mockk.*
 import kotlinx.coroutines.flow.first
@@ -21,7 +21,7 @@ class FavoriteRepositoryImplTest {
     private lateinit var mapper: FavoriteMapper
     private lateinit var repository: FavoriteRepositoryImpl
 
-    private val favoriteProducts = FavoriteProducts(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val favoriteProducts = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
     private val entity = FavoriteEntity(1, "Title", 10.0, "Desc", "Cat", "Img")
     private val product = Product(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 

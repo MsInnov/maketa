@@ -1,5 +1,6 @@
 package com.mscode.data.products.di
 
+import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.datasource.ProductLocalDataSource
@@ -8,6 +9,7 @@ import com.mscode.data.products.repository.ProductsRepositoryImpl
 import com.mscode.data.remoteconfig.datasource.LocalConfigDataSource
 import com.mscode.domain.products.repository.ProductsRepository
 import com.mscode.domain.products.usecase.GetProductsUseCase
+import com.mscode.domain.products.usecase.IsCartFlowUseCase
 import com.mscode.domain.products.usecase.SellProductUseCase
 import dagger.Module
 import dagger.Provides
@@ -29,8 +31,9 @@ object RepositoryModule {
         retrofit: RetrofitFactory,
         mapper: ProductsMapper,
         favoritesLocalDataSource: FavoriteLocalDataSource,
+        cartLocalDataSource: CartLocalDataSource,
         localProductsDataSource: ProductLocalDataSource
-    ): ProductsRepository = ProductsRepositoryImpl(localConfigDataSource, retrofit, mapper, favoritesLocalDataSource, localProductsDataSource)
+    ): ProductsRepository = ProductsRepositoryImpl(localConfigDataSource, retrofit, mapper, favoritesLocalDataSource, cartLocalDataSource, localProductsDataSource)
 
     @Provides
     fun provideSellProductUseCase(repo: ProductsRepository): SellProductUseCase =
@@ -45,4 +48,11 @@ object RepositoryModule {
     fun provideGetProductsUseCase(repo: ProductsRepository): GetProductsUseCase =
         GetProductsUseCase(repo)
 
+    @Provides
+    @Singleton
+    fun providesIsCartFlowUseCase(
+        productsRepository: ProductsRepository
+    ): IsCartFlowUseCase = IsCartFlowUseCase(
+        productsRepository
+    )
 }

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -56,7 +57,8 @@ fun MenuAnimated(
     onClose: () -> Unit,
     onGoLogin: () -> Unit,
     onGoFavorite: () -> Unit,
-    onGoSelling: () -> Unit
+    onGoSelling: () -> Unit,
+    onGoCart: () -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
     val menuViewModel: MenuViewModel = hiltViewModel()
@@ -78,6 +80,11 @@ fun MenuAnimated(
             onGoSelling()
             return
         }
+        is UiState.Cart -> {
+            menuViewModel.onEvent(UiEvent.Idle)
+            onGoCart()
+            return
+        }
         else -> Unit
     }
 
@@ -95,6 +102,7 @@ fun MenuAnimated(
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
+                    "Panier" -> menuViewModel.onEvent(UiEvent.Cart)
                     "Vendre" -> menuViewModel.onEvent(UiEvent.Selling)
                     "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
                     "Se déconnecter" -> menuViewModel.onEvent(UiEvent.Disconnect)
@@ -113,11 +121,13 @@ fun MenuList(
 ) {
     val menuItems = listOf(
         "Vendre" to Icons.Default.Sell,
+        "Panier" to Icons.Default.ShoppingCart,
         "Favoris" to Icons.Default.Favorite,
         "Se déconnecter" to Icons.Default.ExitToApp
     )
     val isFavoriteDisplayed = homeViewModel.uiStateFavorite.collectAsState()
     val isFavoriteHomeEnabledState = homeViewModel.uiStateFavoriteEnabled.collectAsState()
+    val isCartHomeEnabledState = homeViewModel.uiStateCartEnabled.collectAsState()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -134,6 +144,7 @@ fun MenuList(
             menuItems.forEach { (title, icon) ->
                 val isEnabled = when (title) {
                     "Favoris" -> isFavoriteHomeEnabledState.value
+                    "Panier" -> isCartHomeEnabledState.value
                     else -> true
                 }
                 Card(

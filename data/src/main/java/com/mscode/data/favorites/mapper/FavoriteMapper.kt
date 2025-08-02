@@ -1,7 +1,7 @@
 package com.mscode.data.favorites.mapper
 
 import com.mscode.data.favorites.model.FavoriteEntity
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.products.model.Product
 
 class FavoriteMapper {
@@ -9,7 +9,7 @@ class FavoriteMapper {
     fun toFavoriteProducts(
         productEntity: FavoriteEntity,
         isCart: Boolean = false
-    ): FavoriteProducts = FavoriteProducts(
+    ): FavoriteProduct = FavoriteProduct(
         id = productEntity.id,
         title = productEntity.title,
         price = productEntity.price,
@@ -31,7 +31,7 @@ class FavoriteMapper {
         isFavorite = true
     )
 
-    fun toProductsEntity(favoriteProducts: FavoriteProducts): FavoriteEntity = FavoriteEntity(
+    fun toProductsEntity(favoriteProducts: FavoriteProduct): FavoriteEntity = FavoriteEntity(
         id = favoriteProducts.id,
         title = favoriteProducts.title,
         price = favoriteProducts.price,

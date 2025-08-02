@@ -2,7 +2,7 @@ package com.mscode.domain.favorites.usecase
 
 import com.mscode.domain.common.WrapperResults
 import com.mscode.domain.common.WrapperResults.*
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import java.lang.Exception
 
@@ -11,7 +11,7 @@ class ToggleFavoriteUseCase (
 ) {
 
     suspend operator fun invoke(
-        favoriteProducts: FavoriteProducts,
+        favoriteProducts: FavoriteProduct,
         isFavoriteProducts: Boolean
     ): WrapperResults<Unit> = if(isFavoriteProducts) {
         favoritesRepository.deleteFavorites((favoriteProducts)).let { ret ->

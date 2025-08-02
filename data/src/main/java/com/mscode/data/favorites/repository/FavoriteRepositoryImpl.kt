@@ -3,7 +3,7 @@ package com.mscode.data.favorites.repository
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.mapper.FavoriteMapper
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProducts
+import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import com.mscode.domain.products.model.Product
 import kotlinx.coroutines.flow.Flow
@@ -15,18 +15,18 @@ class FavoriteRepositoryImpl(
     private val favoriteMapper: FavoriteMapper
 ) : FavoriteRepository {
 
-    override suspend fun addFavorites(favoriteProducts: FavoriteProducts) =
+    override suspend fun addFavorites(favoriteProducts: FavoriteProduct) =
         favoriteLocalDataSource.insertFavorite(favoriteMapper.toProductsEntity(favoriteProducts))
 
-    override suspend fun deleteFavorites(favoriteProducts: FavoriteProducts) =
+    override suspend fun deleteFavorites(favoriteProducts: FavoriteProduct) =
         favoriteLocalDataSource.deleteFavorite(favoriteMapper.toProductsEntity(favoriteProducts))
 
-    override suspend fun getFavorites(): List<FavoriteProducts> =
+    override suspend fun getFavorites(): List<FavoriteProduct> =
         favoriteLocalDataSource.getAllFavorites().map { favorite ->
             favoriteMapper.toFavoriteProducts(favorite)
         }
 
-    override suspend fun getFavorite(id: Int): WrapperResults<FavoriteProducts> =
+    override suspend fun getFavorite(id: Int): WrapperResults<FavoriteProduct> =
         favoriteLocalDataSource.getFavoriteById(id)?.let {
             WrapperResults.Success(favoriteMapper.toFavoriteProducts(it))
         } ?: WrapperResults.Error(Exception())
@@ -50,7 +50,7 @@ class FavoriteRepositoryImpl(
                     .map { favoritesProduct -> favoriteMapper.toProducts(favoritesProduct) }
             }
 
-    override fun getFavoritesFlow(): Flow<List<FavoriteProducts>> =
+    override fun getFavoritesFlow(): Flow<List<FavoriteProduct>> =
         favoriteLocalDataSource.getAllFavoritesFlow()
             .map { favoritesProduct ->
                 favoritesProduct.map { favorite ->
