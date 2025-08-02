@@ -60,6 +60,7 @@ import com.mscode.presentation.account.model.UiState.Profile
 import com.mscode.presentation.account.screen.AccountInfoPanel
 import com.mscode.presentation.account.viewmodel.AccountViewModel
 import com.mscode.presentation.cart.component.CartPanel
+import com.mscode.presentation.cart.model.UiEvent.DeleteAllCarts
 import com.mscode.presentation.cart.model.UiEvent.GetCarts
 import com.mscode.presentation.cart.viewmodel.CartViewModel
 import com.mscode.presentation.common.ErrorScreen
@@ -73,6 +74,11 @@ import com.mscode.presentation.login.component.LoginPanel
 import com.mscode.presentation.login.model.UiState.Logged
 import com.mscode.presentation.login.viewmodel.LoginViewModel
 import com.mscode.presentation.menu.component.MenuAnimated
+import com.mscode.presentation.payment.component.BankInfoPanel
+import com.mscode.presentation.payment.model.UiEvent.LoadBank
+import com.mscode.presentation.payment.model.UiEvent.Validate
+import com.mscode.presentation.payment.model.UiState.DisplayBankInfo
+import com.mscode.presentation.payment.viewmodel.PaymentViewModel
 import com.mscode.presentation.register.component.RegisterPanel
 import com.mscode.presentation.register.model.UiState.Registered
 import com.mscode.presentation.register.viewmodel.RegisterViewModel
@@ -123,6 +129,7 @@ fun ProductsScreenWithSidePanel(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
+    val paymentViewModel: PaymentViewModel = hiltViewModel()
     val cartViewModel: CartViewModel = hiltViewModel()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -248,6 +255,7 @@ fun ProductsScreenWithSidePanel(
                                 homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
                                 panelOpen = false
                                 coroutineScope.launch {
+                                    paymentViewModel.onEvent(com.mscode.presentation.payment.model.UiEvent.Idle)
                                     cartViewModel.onEvent(GetCarts)
                                     bottomSheetState.show()
                                 }
@@ -279,6 +287,21 @@ fun ProductsScreenWithSidePanel(
         val uiStateRegister = registerViewModel.uiState.collectAsState()
         val uiStateLogin = loginViewModel.uiState.collectAsState()
         val uiStateSell = sellViewModel.uiState.collectAsState()
+        val uiStateBank = paymentViewModel.uiState.collectAsState()
+        LaunchedEffect(uiStateBank.value) {
+            if (uiStateBank.value == com.mscode.presentation.payment.model.UiState.Validate) {
+                Toast.makeText(context, "Votre achat a été pris en compte", Toast.LENGTH_LONG)
+                    .show()
+                delay(4000)
+                Toast.makeText(
+                    context,
+                    "Mais l'API ne permet pas de faire un achat",
+                    Toast.LENGTH_LONG
+                ).show()
+                cartViewModel.onEvent(DeleteAllCarts)
+                paymentViewModel.onEvent(com.mscode.presentation.payment.model.UiEvent.Idle)
+            }
+        }
         LaunchedEffect(uiStateSell.value) {
             if (uiStateSell.value == Success) {
                 Toast.makeText(context, "Votre article a été ajouté avec succès", Toast.LENGTH_LONG)
@@ -326,12 +349,24 @@ fun ProductsScreenWithSidePanel(
         CustomBottomSheet(
             sheetState = bottomSheetState,
             sheetContent = {
-                CartPanel(
-                    viewModel = cartViewModel,
-                    onCloseRequest = {
-                        coroutineScope.launch { bottomSheetState.hide() }
-                    }
-                )
+                if(paymentViewModel.uiState.collectAsState().value == DisplayBankInfo) {
+                    BankInfoPanel(
+                        onValidate = {
+                            paymentViewModel.onEvent(Validate)
+                            coroutineScope.launch { bottomSheetState.hide() }
+                        }
+                    )
+                } else {
+                    CartPanel(
+                        viewModel = cartViewModel,
+                        onCloseRequest = {
+                            coroutineScope.launch { bottomSheetState.hide() }
+                        },
+                        toBank = {
+                            paymentViewModel.onEvent(LoadBank)
+                        }
+                    )
+                }
             }
         ) {
             homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)

@@ -34,7 +34,8 @@ import androidx.compose.material.icons.filled.Delete
 @Composable
 fun CartPanel(
     viewModel: CartViewModel,
-    onCloseRequest: () -> Unit
+    onCloseRequest: () -> Unit,
+    toBank: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -80,7 +81,7 @@ fun CartPanel(
         }
 
         Button(
-            onClick = { },
+            onClick = { toBank() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
