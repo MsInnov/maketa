@@ -7,5 +7,6 @@ sealed class UiEvent {
     data object Idle: UiEvent()
     data object Selling: UiEvent()
     data object Cart: UiEvent()
+    data object Account: UiEvent()
 
 }

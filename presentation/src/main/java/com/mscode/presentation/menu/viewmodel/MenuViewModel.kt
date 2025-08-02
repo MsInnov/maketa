@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mscode.domain.login.usecase.RemoveTokenUseCase
 import com.mscode.presentation.menu.model.UiEvent
+import com.mscode.presentation.menu.model.UiEvent.Account
 import com.mscode.presentation.menu.model.UiEvent.Cart
 import com.mscode.presentation.menu.model.UiEvent.Disconnect
 import com.mscode.presentation.menu.model.UiEvent.Favorite
@@ -36,6 +37,7 @@ class MenuViewModel @Inject constructor(
                 Selling -> _uiState.value = UiState.Selling
                 Idle -> _uiState.value = UiState.Idle
                 Cart -> _uiState.value = UiState.Cart
+                Account -> _uiState.value = UiState.Account
             }
         }
     }

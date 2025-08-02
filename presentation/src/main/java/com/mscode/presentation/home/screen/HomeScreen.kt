@@ -54,6 +54,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mscode.presentation.account.model.UiEvent.GetProfile
+import com.mscode.presentation.account.model.UiState.Error
+import com.mscode.presentation.account.model.UiState.Profile
+import com.mscode.presentation.account.screen.AccountInfoPanel
+import com.mscode.presentation.account.viewmodel.AccountViewModel
 import com.mscode.presentation.cart.component.CartPanel
 import com.mscode.presentation.cart.model.UiEvent.GetCarts
 import com.mscode.presentation.cart.viewmodel.CartViewModel
@@ -168,6 +173,7 @@ fun ProductsScreenWithSidePanel(
         val registerViewModel: RegisterViewModel = hiltViewModel()
         val loginViewModel: LoginViewModel = hiltViewModel()
         val sellViewModel: SellViewModel = hiltViewModel()
+        val accountViewModel: AccountViewModel = hiltViewModel()
 
         Box(
             modifier = Modifier
@@ -245,8 +251,26 @@ fun ProductsScreenWithSidePanel(
                                     cartViewModel.onEvent(GetCarts)
                                     bottomSheetState.show()
                                 }
+                            },
+                            onGoAccount = {
+                                accountViewModel.onEvent(GetProfile)
+                                panelContentState = PanelContentState.ACCOUNT
                             }
                         )
+                    }
+
+                    PanelContentState.ACCOUNT -> {
+                        when(val state = accountViewModel.uiState.collectAsState().value) {
+                            is Profile -> AccountInfoPanel(
+                                onClose = {
+                                    panelContentState = PanelContentState.MENU
+                                },
+                                email = state.email,
+                                username = state.username
+                            )
+                            is Error -> ErrorScreen()
+                            else -> Unit
+                        }
                     }
                 }
             }
@@ -469,5 +493,5 @@ fun ProductItem(
 }
 
 enum class PanelContentState {
-    LOGIN, MENU, REGISTER, SELLING
+    LOGIN, MENU, REGISTER, SELLING, ACCOUNT
 }

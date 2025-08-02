@@ -77,4 +77,13 @@ class MenuViewModelTest {
 
         assertEquals(UiState.Cart, viewModel.uiState.value)
     }
+
+    @Test
+    fun `onEvent Account should update uiState to Account`() = runTest {
+        viewModel.onEvent(UiEvent.Account)
+
+        testScheduler.runCurrent()
+
+        assertEquals(UiState.Account, viewModel.uiState.value)
+    }
 }

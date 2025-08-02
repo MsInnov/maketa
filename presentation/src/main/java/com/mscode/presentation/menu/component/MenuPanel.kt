@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
@@ -58,7 +59,8 @@ fun MenuAnimated(
     onGoLogin: () -> Unit,
     onGoFavorite: () -> Unit,
     onGoSelling: () -> Unit,
-    onGoCart: () -> Unit
+    onGoCart: () -> Unit,
+    onGoAccount: () -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
     val menuViewModel: MenuViewModel = hiltViewModel()
@@ -85,6 +87,11 @@ fun MenuAnimated(
             onGoCart()
             return
         }
+        is UiState.Account -> {
+            menuViewModel.onEvent(UiEvent.Idle)
+            onGoAccount()
+            return
+        }
         else -> Unit
     }
 
@@ -102,6 +109,7 @@ fun MenuAnimated(
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
+                    "Compte" -> menuViewModel.onEvent(UiEvent.Account)
                     "Panier" -> menuViewModel.onEvent(UiEvent.Cart)
                     "Vendre" -> menuViewModel.onEvent(UiEvent.Selling)
                     "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
@@ -120,6 +128,7 @@ fun MenuList(
     onItemClick: (String) -> Unit
 ) {
     val menuItems = listOf(
+        "Compte" to Icons.Default.Person,
         "Vendre" to Icons.Default.Sell,
         "Panier" to Icons.Default.ShoppingCart,
         "Favoris" to Icons.Default.Favorite,
