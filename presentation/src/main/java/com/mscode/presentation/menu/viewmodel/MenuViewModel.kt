@@ -8,6 +8,7 @@ import com.mscode.presentation.menu.model.UiEvent.Account
 import com.mscode.presentation.menu.model.UiEvent.Cart
 import com.mscode.presentation.menu.model.UiEvent.Disconnect
 import com.mscode.presentation.menu.model.UiEvent.Favorite
+import com.mscode.presentation.menu.model.UiEvent.Filter
 import com.mscode.presentation.menu.model.UiEvent.Idle
 import com.mscode.presentation.menu.model.UiEvent.Selling
 import com.mscode.presentation.menu.model.UiState
@@ -33,6 +34,7 @@ class MenuViewModel @Inject constructor(
                     removeTokenUseCase()
                     _uiState.value = Disconnected
                 }
+                Filter -> _uiState.value = UiState.Filter
                 Favorite -> _uiState.value = UiState.Favorite
                 Selling -> _uiState.value = UiState.Selling
                 Idle -> _uiState.value = UiState.Idle

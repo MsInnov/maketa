@@ -2,6 +2,7 @@ package com.mscode.data.favorites.di
 
 import android.content.Context
 import androidx.room.Room
+import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.AppDatabase
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.datasource.ProductDao
@@ -79,9 +80,11 @@ object RepositoryModule {
     @Singleton
     fun provideProductRepository(
         favoriteLocalDataSource: FavoriteLocalDataSource,
+        cartLocalDataSource: CartLocalDataSource,
         favoriteMapper: FavoriteMapper
     ): FavoriteRepository = FavoriteRepositoryImpl(
         favoriteLocalDataSource = favoriteLocalDataSource,
+        cartLocalDataSource = cartLocalDataSource,
         favoriteMapper = favoriteMapper
     )
 }

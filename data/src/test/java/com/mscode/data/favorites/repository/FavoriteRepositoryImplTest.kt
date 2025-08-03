@@ -1,5 +1,6 @@
 package com.mscode.data.favorites.repository
 
+import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.mapper.FavoriteMapper
 import com.mscode.data.favorites.model.FavoriteEntity
@@ -20,6 +21,7 @@ class FavoriteRepositoryImplTest {
     private lateinit var dataSource: FavoriteLocalDataSource
     private lateinit var mapper: FavoriteMapper
     private lateinit var repository: FavoriteRepositoryImpl
+    private lateinit var cartLocalDataSource: CartLocalDataSource
 
     private val favoriteProducts = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
     private val entity = FavoriteEntity(1, "Title", 10.0, "Desc", "Cat", "Img")
@@ -29,7 +31,8 @@ class FavoriteRepositoryImplTest {
     fun setUp() {
         dataSource = mockk()
         mapper = mockk()
-        repository = FavoriteRepositoryImpl(dataSource, mapper)
+        cartLocalDataSource = mockk()
+        repository = FavoriteRepositoryImpl(dataSource, cartLocalDataSource, mapper)
     }
 
     @Test
@@ -58,7 +61,8 @@ class FavoriteRepositoryImplTest {
     fun `getFavorites should map all entities to domain model`() = runTest {
         val entities = listOf(entity)
         coEvery { dataSource.getAllFavorites() } returns entities
-        coEvery { mapper.toFavoriteProducts(entity) } returns favoriteProducts
+        coEvery { cartLocalDataSource.getCartProductById(any()) } returns null
+        coEvery { mapper.toFavoriteProducts(entity, false) } returns favoriteProducts
 
         val result = repository.getFavorites()
 
@@ -68,7 +72,8 @@ class FavoriteRepositoryImplTest {
     @Test
     fun `getFavorite should return Success when entity exists`() = runTest {
         coEvery { dataSource.getFavoriteById(1) } returns entity
-        coEvery { mapper.toFavoriteProducts(entity) } returns favoriteProducts
+        coEvery { cartLocalDataSource.getCartProductById(any()) } returns null
+        coEvery { mapper.toFavoriteProducts(entity, false) } returns favoriteProducts
 
         val result = repository.getFavorite(1)
 
@@ -133,7 +138,8 @@ class FavoriteRepositoryImplTest {
     @Test
     fun `getFavoritesFlow should map entity list to domain list`() = runTest {
         every { dataSource.getAllFavoritesFlow() } returns flowOf(listOf(entity))
-        every { mapper.toFavoriteProducts(entity) } returns favoriteProducts
+        coEvery { cartLocalDataSource.getCartProductById(any()) } returns null
+        every { mapper.toFavoriteProducts(entity, false) } returns favoriteProducts
 
         val flow = repository.getFavoritesFlow()
         val result = flow.first()

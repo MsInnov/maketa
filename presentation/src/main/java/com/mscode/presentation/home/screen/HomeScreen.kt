@@ -64,6 +64,10 @@ import com.mscode.presentation.cart.model.UiEvent.DeleteAllCarts
 import com.mscode.presentation.cart.model.UiEvent.GetCarts
 import com.mscode.presentation.cart.viewmodel.CartViewModel
 import com.mscode.presentation.common.ErrorScreen
+import com.mscode.presentation.filter.component.FilterPanel
+import com.mscode.presentation.filter.model.UiState.FilteredByCategory
+import com.mscode.presentation.filter.model.UiState.ToHome
+import com.mscode.presentation.filter.viewmodel.FilterViewModel
 import com.mscode.presentation.home.mapper.CustomBottomSheet
 import com.mscode.presentation.home.model.UiEvent
 import com.mscode.presentation.home.model.UiEvent.UpdateFavorite
@@ -95,6 +99,7 @@ val lightBackground = Color(0xFFF5F5F5)
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel) {
     val uiState = homeViewModel.uiState.collectAsState()
+    val filterViewModel: FilterViewModel = hiltViewModel()
     when (val state = uiState.value) {
         is UiState.Loading -> Box(
             modifier = Modifier.fillMaxSize(),
@@ -107,7 +112,9 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
         is UiState.Products -> ProductsScreenWithSidePanel(
             homeViewModel = homeViewModel,
             products = state.products,
+            filterViewModel = filterViewModel,
             goToHome = {
+                filterViewModel.onEvent(com.mscode.presentation.filter.model.UiEvent.Idle)
                 homeViewModel.onEvent(UiEvent.LoadProduct)
             }
         )
@@ -119,6 +126,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 fun ProductsScreenWithSidePanel(
     homeViewModel: HomeViewModel,
     products: List<UiProduct>,
+    filterViewModel: FilterViewModel,
     goToHome: () -> Unit
 ) {
     var panelOpen by remember { mutableStateOf(false) }
@@ -132,14 +140,23 @@ fun ProductsScreenWithSidePanel(
     val paymentViewModel: PaymentViewModel = hiltViewModel()
     val cartViewModel: CartViewModel = hiltViewModel()
     Box(modifier = Modifier.fillMaxSize()) {
+        val filterUiState = filterViewModel.uiState.collectAsState().value
+        if (filterUiState is ToHome) goToHome()
+        val productsToDisplay = when {
+            filterUiState is FilteredByCategory -> filterUiState.list
+            else -> products
+        }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(products.size) { index ->
-                val product = products[index]
+            items(productsToDisplay.size) { index ->
+                val product = productsToDisplay[index]
                 ProductItem(
                     homeViewModel = homeViewModel,
                     product = product,
                     onFavoriteClick = { clickedFavoriteProduct ->
-                        homeViewModel.onEvent(UpdateFavorite(clickedFavoriteProduct))
+                        if(filterUiState is FilteredByCategory)
+                            filterViewModel.onEvent(com.mscode.presentation.filter.model.UiEvent.UpdateFavorite(clickedFavoriteProduct))
+                        else
+                            homeViewModel.onEvent(UpdateFavorite(clickedFavoriteProduct))
                     },
                     onCartClick = { clickedCartProduct ->
                         homeViewModel.onEvent(UiEvent.UpdateCart(clickedCartProduct))
@@ -233,6 +250,7 @@ fun ProductsScreenWithSidePanel(
                         homeViewModel.onEvent(UiEvent.EnableCart)
                         MenuAnimated(
                             homeViewModel = homeViewModel,
+                            filterViewModel = filterViewModel,
                             loginViewModel = loginViewModel,
                             onClose = {
                                 homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
@@ -243,7 +261,12 @@ fun ProductsScreenWithSidePanel(
                                 goToHome()
                                 panelContentState = PanelContentState.LOGIN
                             },
+                            onGoFilter = {
+                                homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
+                                panelContentState = PanelContentState.FILTER
+                            },
                             onGoFavorite = {
+                                filterViewModel.onEvent(com.mscode.presentation.filter.model.UiEvent.Idle)
                                 panelOpen = false
                                 homeViewModel.onEvent(UiEvent.LoadProductsFavorites)
                             },
@@ -266,6 +289,15 @@ fun ProductsScreenWithSidePanel(
                             }
                         )
                     }
+
+                    PanelContentState.FILTER -> FilterPanel(
+                        products = products,
+                        onClose = {
+                            panelOpen = false
+                            panelContentState = PanelContentState.MENU
+                        },
+                        viewModel = filterViewModel
+                    )
 
                     PanelContentState.ACCOUNT -> {
                         when(val state = accountViewModel.uiState.collectAsState().value) {
@@ -528,5 +560,5 @@ fun ProductItem(
 }
 
 enum class PanelContentState {
-    LOGIN, MENU, REGISTER, SELLING, ACCOUNT
+    LOGIN, MENU, REGISTER, SELLING, ACCOUNT, FILTER
 }

@@ -8,5 +8,6 @@ sealed class UiEvent {
     data object Selling: UiEvent()
     data object Cart: UiEvent()
     data object Account: UiEvent()
+    data object Filter: UiEvent()
 
 }

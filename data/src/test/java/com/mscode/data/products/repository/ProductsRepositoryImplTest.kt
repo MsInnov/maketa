@@ -3,6 +3,7 @@ package com.mscode.data.products.repository
 import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.cart.model.CartProductEntity
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
+import com.mscode.data.favorites.model.FavoriteEntity
 import com.mscode.data.network.factory.RetrofitFactory
 import com.mscode.data.products.api.ProductsApi
 import com.mscode.data.products.datasource.ProductLocalDataSource
@@ -85,6 +86,29 @@ class ProductsRepositoryImplTest {
 
         assertTrue(result is WrapperResults.Error)
         assertEquals("Product URL missing", result.exception.message)
+    }
+
+    @Test
+    fun `getProductsFilteredByCategory returns products when localProductsDataSource have same category`() = runTest {
+        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val favoriteProducts = FavoriteEntity(1, "Title", 10.0, "Desc", "Cat", "Img")
+        every { localProductsDataSource.products } returns listOf(product)
+        coEvery { favoriteLocalDataSource.getFavoriteById(1) } returns favoriteProducts
+
+        val result = repository.getProductsFilteredByCategory("cat")
+
+        assertEquals(listOf(product.copy(isFavorite = true)), result)
+    }
+
+    @Test
+    fun `getCategoryProducts return category of localProductsDataSource`() = runTest {
+        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val product1 = Product(1, "Test", 10.0, "desc", "pulet", "img", false)
+        every { localProductsDataSource.products } returns listOf(product, product1)
+
+        val result = repository.getCategoryProducts()
+
+        assertEquals(listOf("cat","pulet"), result)
     }
 
     @Test

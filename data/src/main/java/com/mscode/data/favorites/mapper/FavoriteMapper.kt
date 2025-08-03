@@ -8,7 +8,7 @@ class FavoriteMapper {
 
     fun toFavoriteProducts(
         productEntity: FavoriteEntity,
-        isCart: Boolean = false
+        isCart: Boolean
     ): FavoriteProduct = FavoriteProduct(
         id = productEntity.id,
         title = productEntity.title,

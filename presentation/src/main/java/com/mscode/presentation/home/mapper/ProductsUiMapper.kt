@@ -50,4 +50,16 @@ class ProductsUiMapper {
         category = uiProduct.category,
         description = uiProduct.description
     )
+
+    fun toProducts(list: List<UiProduct>) = list.map { product ->
+        Product(
+            id = product.id,
+            title = product.title,
+            image = product.image,
+            price = product.price,
+            category = product.category,
+            description = product.description,
+            isFavorite = product.isFavorite
+        )
+    }
 }
