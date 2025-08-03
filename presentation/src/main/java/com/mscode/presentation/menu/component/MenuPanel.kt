@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mscode.presentation.filter.viewmodel.FilterViewModel
 import com.mscode.presentation.home.screen.lightBackground
 import com.mscode.presentation.home.viewmodel.HomeViewModel
 import com.mscode.presentation.login.viewmodel.LoginViewModel
@@ -55,10 +57,12 @@ typealias LoginDisconnect = com.mscode.presentation.login.model.UiEvent.Disconne
 fun MenuAnimated(
     homeViewModel: HomeViewModel,
     loginViewModel: LoginViewModel,
+    filterViewModel: FilterViewModel,
     onClose: () -> Unit,
     onGoLogin: () -> Unit,
     onGoFavorite: () -> Unit,
     onGoSelling: () -> Unit,
+    onGoFilter: () -> Unit,
     onGoCart: () -> Unit,
     onGoAccount: () -> Unit
 ) {
@@ -70,6 +74,11 @@ fun MenuAnimated(
             menuViewModel.onEvent(UiEvent.Idle)
             loginViewModel.onEvent(LoginDisconnect)
             onGoLogin()
+            return
+        }
+        is UiState.Filter -> {
+            menuViewModel.onEvent(UiEvent.Idle)
+            onGoFilter()
             return
         }
         is UiState.Favorite -> {
@@ -106,10 +115,12 @@ fun MenuAnimated(
     ) {
         MenuList(
             homeViewModel = homeViewModel,
+            filterViewModel = filterViewModel,
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
                     "Compte" -> menuViewModel.onEvent(UiEvent.Account)
+                    "Filtre" -> menuViewModel.onEvent(UiEvent.Filter)
                     "Panier" -> menuViewModel.onEvent(UiEvent.Cart)
                     "Vendre" -> menuViewModel.onEvent(UiEvent.Selling)
                     "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
@@ -124,17 +135,20 @@ fun MenuAnimated(
 @Composable
 fun MenuList(
     homeViewModel: HomeViewModel,
+    filterViewModel: FilterViewModel,
     onClose: () -> Unit,
     onItemClick: (String) -> Unit
 ) {
     val menuItems = listOf(
         "Compte" to Icons.Default.Person,
+        "Filtre" to Icons.Default.FilterList,
         "Vendre" to Icons.Default.Sell,
         "Panier" to Icons.Default.ShoppingCart,
         "Favoris" to Icons.Default.Favorite,
         "Se déconnecter" to Icons.Default.ExitToApp
     )
     val isFavoriteDisplayed = homeViewModel.uiStateFavorite.collectAsState()
+    val isFilterDisplayed = filterViewModel.uiStateIsDisplayed.collectAsState()
     val isFavoriteHomeEnabledState = homeViewModel.uiStateFavoriteEnabled.collectAsState()
     val isCartHomeEnabledState = homeViewModel.uiStateCartEnabled.collectAsState()
     Box(
@@ -175,7 +189,9 @@ fun MenuList(
                             tint = if (title == "Favoris") {
                                 if (isFavoriteDisplayed.value) Color.Red else Primary
                             } else {
-                                Primary
+                                if(title == "Filtre") {
+                                    if (isFilterDisplayed.value) Color.Red else Primary
+                                } else Primary
                             }
                         )
                         Spacer(modifier = Modifier.width(16.dp))

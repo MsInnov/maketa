@@ -1,5 +1,6 @@
 package com.mscode.data.favorites.repository
 
+import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.mapper.FavoriteMapper
 import com.mscode.domain.common.WrapperResults
@@ -12,6 +13,7 @@ import java.lang.Exception
 
 class FavoriteRepositoryImpl(
     private val favoriteLocalDataSource: FavoriteLocalDataSource,
+    private val cartLocalDataSource: CartLocalDataSource,
     private val favoriteMapper: FavoriteMapper
 ) : FavoriteRepository {
 
@@ -23,12 +25,12 @@ class FavoriteRepositoryImpl(
 
     override suspend fun getFavorites(): List<FavoriteProduct> =
         favoriteLocalDataSource.getAllFavorites().map { favorite ->
-            favoriteMapper.toFavoriteProducts(favorite)
+            favoriteMapper.toFavoriteProducts(favorite, isCart(favorite.id))
         }
 
     override suspend fun getFavorite(id: Int): WrapperResults<FavoriteProduct> =
         favoriteLocalDataSource.getFavoriteById(id)?.let {
-            WrapperResults.Success(favoriteMapper.toFavoriteProducts(it))
+            WrapperResults.Success(favoriteMapper.toFavoriteProducts(it, isCart(it.id)))
         } ?: WrapperResults.Error(Exception())
 
     override fun saveFavoriteIsDisplayed(isDisplayed: Boolean) {
@@ -56,7 +58,11 @@ class FavoriteRepositoryImpl(
                 favoritesProduct.map { favorite ->
                     favoriteMapper.toFavoriteProducts(
                         favorite,
+                        isCart(favorite.id)
                     )
                 }
             }
+
+    private suspend fun isCart(id: Int): Boolean =
+        cartLocalDataSource.getCartProductById(id) != null
 }

@@ -8,5 +8,6 @@ sealed class UiState {
     data object Selling : UiState()
     data object Cart : UiState()
     data object Account : UiState()
+    data object Filter : UiState()
 
 }

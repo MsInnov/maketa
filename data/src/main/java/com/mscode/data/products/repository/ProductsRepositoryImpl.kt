@@ -46,6 +46,14 @@ class ProductsRepositoryImpl(
         }
     }
 
+    override suspend fun getProductsFilteredByCategory(category: String): List<Product> =
+        localProductsDataSource.products
+            .filter { it.category == category }
+            .verifyAndAddFavorite()
+
+    override fun getCategoryProducts(): List<String> =
+        localProductsDataSource.products.map { it.category }.distinct()
+
     override suspend fun sellProduct(product: Product): WrapperResults<Unit> {
         val baseUrl = localConfigDataSource.urls.firstOrNull { it.key == url_products }
             ?: return WrapperResults.Error(Exception("Product URL missing"))
@@ -53,6 +61,12 @@ class ProductsRepositoryImpl(
         val remoteDataSource = ProductRemoteDataSource(api)
 
         return remoteDataSource.newProduct(productsMapper.toProductEntity(product))
+    }
+
+    private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
+
+    private suspend fun List<Product>.verifyAndAddFavorite(): List<Product> = map { products ->
+        products.copy(isFavorite = isFavorite(products.id))
     }
 
     override suspend fun isCartProducts(): Flow<List<Pair<Int, Boolean>>> =
@@ -66,7 +80,5 @@ class ProductsRepositoryImpl(
                 }
             }
         }
-
-    private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
 
 }
