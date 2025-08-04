@@ -22,7 +22,7 @@ enum class SortOption {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterPanel(
-    products: List<UiProduct>,
+    products: List<UiProduct.Classic>,
     onClose: () -> Unit,
     viewModel: FilterViewModel
 ) {

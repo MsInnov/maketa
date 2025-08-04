@@ -1,13 +1,13 @@
 package com.mscode.presentation.sell.mapper
 
 import com.mscode.domain.products.model.Product
-import com.mscode.presentation.sell.model.SellProductUi
+import com.mscode.presentation.home.model.UiProduct
 
 class SellProductUiMapper {
 
     fun toProducts(
-        sellProductUi: SellProductUi
-    ) = Product(
+        sellProductUi: UiProduct.Sell
+    ) = Product.Classic(
         id = 0,
         isFavorite = false,
         title = sellProductUi.title,

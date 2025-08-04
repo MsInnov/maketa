@@ -24,7 +24,7 @@ class ProductsRepositoryImpl(
     private val localProductsDataSource: ProductLocalDataSource
 ) : ProductsRepository {
 
-    override suspend fun getProducts(): WrapperResults<List<Product>> {
+    override suspend fun getProducts(): WrapperResults<List<Product.Classic>> {
         val baseUrl = localConfigDataSource.urls.firstOrNull { it.key == url_products }
             ?: return WrapperResults.Error(Exception("Product URL missing"))
         val api = retrofitFactory.create(baseUrl.value, ProductsApi::class.java)
@@ -46,7 +46,7 @@ class ProductsRepositoryImpl(
         }
     }
 
-    override suspend fun getProductsFilteredByCategory(category: String): List<Product> =
+    override suspend fun getProductsFilteredByCategory(category: String): List<Product.Classic> =
         localProductsDataSource.products
             .filter { it.category == category }
             .verifyAndAddFavorite()
@@ -54,7 +54,7 @@ class ProductsRepositoryImpl(
     override fun getCategoryProducts(): List<String> =
         localProductsDataSource.products.map { it.category }.distinct()
 
-    override suspend fun sellProduct(product: Product): WrapperResults<Unit> {
+    override suspend fun sellProduct(product: Product.Classic): WrapperResults<Unit> {
         val baseUrl = localConfigDataSource.urls.firstOrNull { it.key == url_products }
             ?: return WrapperResults.Error(Exception("Product URL missing"))
         val api = retrofitFactory.create(baseUrl.value, ProductsApi::class.java)
@@ -65,7 +65,7 @@ class ProductsRepositoryImpl(
 
     private suspend fun isFavorite(id: Int) = favoritesLocalDataSource.getFavoriteById(id) != null
 
-    private suspend fun List<Product>.verifyAndAddFavorite(): List<Product> = map { products ->
+    private suspend fun List<Product.Classic>.verifyAndAddFavorite(): List<Product.Classic> = map { products ->
         products.copy(isFavorite = isFavorite(products.id))
     }
 

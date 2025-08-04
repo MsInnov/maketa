@@ -5,29 +5,29 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.mscode.data.cart.model.CartProductEntity
+import com.mscode.data.cart.model.CartEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CartDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCartProduct(cartProductEntity: CartProductEntity): Long
+    suspend fun insertCartProduct(cartEntity: CartEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCart(cartsLocal: List<CartProductEntity>)
+    suspend fun insertCart(cartsEntities: List<CartEntity>)
 
     @Delete
-    suspend fun deleteCartProduct(cartLocal: CartProductEntity): Int
+    suspend fun deleteCartProduct(cartEntity: CartEntity): Int
 
-    @Query("DELETE FROM cartProduct")
+    @Query("DELETE FROM cart")
     suspend fun deleteCart()
 
-    @Query("SELECT * FROM cartProduct")
-    suspend fun getCart(): List<CartProductEntity>
+    @Query("SELECT * FROM cart")
+    suspend fun getCart(): List<CartEntity>
 
-    @Query("SELECT * FROM cartProduct")
-    fun getCartByFlow(): Flow<List<CartProductEntity>>
+    @Query("SELECT * FROM cart")
+    fun getCartByFlow(): Flow<List<CartEntity>>
 
-    @Query("SELECT * FROM cartProduct WHERE id = :id")
-    suspend fun getCartProductById(id: Int): CartProductEntity?
+    @Query("SELECT * FROM cart WHERE id = :id")
+    suspend fun getCartProductById(id: Int): CartEntity?
 }

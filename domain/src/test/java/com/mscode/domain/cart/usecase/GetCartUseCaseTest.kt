@@ -1,8 +1,8 @@
 package com.mscode.domain.cart.usecase
 
-import com.mscode.domain.cart.model.CartProduct
 import com.mscode.domain.cart.repository.CartRepository
 import com.mscode.domain.common.WrapperResults
+import com.mscode.domain.products.model.Product
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,7 +17,7 @@ class GetCartUseCaseTest {
     private val repository: CartRepository = mockk()
     private lateinit var useCase: GetCartUseCase
 
-    private val cartProduct = CartProduct(
+    private val cart = Product.Cart(
         id = 1,
         title = "Title",
         price = 9.99,
@@ -34,7 +34,7 @@ class GetCartUseCaseTest {
     @Test
     fun `should return cart list when repository returns success`() = runTest {
         // Given
-        val expected = WrapperResults.Success(listOf(cartProduct))
+        val expected = WrapperResults.Success(listOf(cart))
         coEvery { repository.getCart() } returns expected
 
         // When

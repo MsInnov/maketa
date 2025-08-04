@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductsRepository {
 
-    suspend fun getProducts(): WrapperResults<List<Product>>
-    suspend fun getProductsFilteredByCategory(category: String): List<Product>
+    suspend fun getProducts(): WrapperResults<List<Product.Classic>>
+    suspend fun getProductsFilteredByCategory(category: String): List<Product.Classic>
     fun getCategoryProducts(): List<String>
-    suspend fun sellProduct(product: Product): WrapperResults<Unit>
+    suspend fun sellProduct(product: Product.Classic): WrapperResults<Unit>
     suspend fun isCartProducts(): Flow<List<Pair<Int, Boolean>>>
 
 }

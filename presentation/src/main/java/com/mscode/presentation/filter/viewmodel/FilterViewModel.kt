@@ -94,8 +94,8 @@ class FilterViewModel @Inject constructor(
                 UiEvent.GetCategory -> fetchCategoryProducts()
                 is UiEvent.UpdateFavorite -> {
                     val updated = toggleFavoriteUseCase(
-                        favoriteProducts = productsUiMapper.toFavoriteProduct(uiEvent.products),
-                        isFavoriteProducts = uiEvent.products.isFavorite
+                        favorite = productsUiMapper.toFavorite(uiEvent.products),
+                        isFavorite = uiEvent.products.isFavorite
                     )
 
                     if (updated is Success && _uiState.value is UiState.FilteredByCategory) {
@@ -121,7 +121,7 @@ class FilterViewModel @Inject constructor(
         }
     }
 
-    private fun filterAndSortProducts(category: String, uiProducts: List<UiProduct>) {
+    private fun filterAndSortProducts(category: String, uiProducts: List<UiProduct.Classic>) {
         filterAndSortProductsJob = viewModelScope.launch {
             _uiStateIsDisplayed.value = true
             getProductsByCategoryUseCase(category).collect { products ->
@@ -158,19 +158,19 @@ class FilterViewModel @Inject constructor(
         }
     }
 
-    private suspend fun sortByPriceAscending(uiProducts: List<UiProduct>) {
+    private suspend fun sortByPriceAscending(uiProducts: List<UiProduct.Classic>) {
         sortByPriceAscendingUseCase(productsUiMapper.toProducts(uiProducts)).apply {
             updateFilteredByCategoryState(this)
         }
     }
 
-    private suspend fun sortByPriceDescending(uiProducts: List<UiProduct>) {
+    private suspend fun sortByPriceDescending(uiProducts: List<UiProduct.Classic>) {
         sortByPriceDescendingUseCase(productsUiMapper.toProducts(uiProducts)).apply {
             updateFilteredByCategoryState(this)
         }
     }
 
-    private suspend fun updateFilteredByCategoryState(products: List<Product>) {
+    private suspend fun updateFilteredByCategoryState(products: List<Product.Classic>) {
         _uiState.value = UiState.FilteredByCategory(
             products.map { product ->
                 productsUiMapper.toProductUi(

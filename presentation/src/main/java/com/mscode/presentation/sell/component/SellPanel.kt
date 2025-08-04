@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mscode.presentation.sell.model.SellProductUi
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
@@ -15,11 +14,12 @@ import androidx.compose.ui.res.painterResource
 import com.mscode.presentation.sell.model.UiEvent
 import com.mscode.presentation.sell.viewmodel.SellViewModel
 import com.mscode.presentation.R
+import com.mscode.presentation.home.model.UiProduct
 
 @Composable
 fun SellPanel(
     onClose: () -> Unit,
-    onSubmit: (SellProductUi) -> Unit,
+    onSubmit: (UiProduct.Sell) -> Unit,
     sellViewModel: SellViewModel
 ) {
     var title by remember { mutableStateOf("") }
@@ -101,7 +101,7 @@ fun SellPanel(
 
                         Button(
                             onClick = {
-                                val productData = SellProductUi(
+                                val productData = UiProduct.Sell(
                                     title = title,
                                     description = description,
                                     price = price.toDouble(),

@@ -1,30 +1,30 @@
 package com.mscode.presentation.cart.mapper
 
-import com.mscode.domain.cart.model.CartProduct
-import com.mscode.presentation.cart.model.UiCartProduct
+import com.mscode.domain.products.model.Product
+import com.mscode.presentation.home.model.UiProduct
 
 class CartProductUiMapper {
 
-    fun toCartProduct(
-        uiCartProduct: UiCartProduct
-    ): CartProduct = CartProduct(
-        id = uiCartProduct.id,
-        description = uiCartProduct.description,
-        category = uiCartProduct.category,
-        price = uiCartProduct.price,
-        image = uiCartProduct.image,
-        title = uiCartProduct.title
+    fun toCart(
+        uiCart: UiProduct.Cart
+    ): Product.Cart = Product.Cart(
+        id = uiCart.id,
+        description = uiCart.description,
+        category = uiCart.category,
+        price = uiCart.price,
+        image = uiCart.image,
+        title = uiCart.title
     )
 
-    fun toUiCartProduct(
-        uiCartProduct: CartProduct
-    ): UiCartProduct = UiCartProduct(
-        id = uiCartProduct.id,
-        description = uiCartProduct.description,
-        category = uiCartProduct.category,
-        price = uiCartProduct.price,
-        image = uiCartProduct.image,
-        title = uiCartProduct.title
+    fun toUiCart(
+        cart: Product.Cart
+    ): UiProduct.Cart = UiProduct.Cart(
+        id = cart.id,
+        description = cart.description,
+        category = cart.category,
+        price = cart.price,
+        image = cart.image,
+        title = cart.title
     )
 
 }

@@ -2,9 +2,9 @@ package com.mscode.data.cart.repository
 
 import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.cart.mapper.CartMapper
-import com.mscode.data.cart.model.CartProductEntity
-import com.mscode.domain.cart.model.CartProduct
+import com.mscode.data.cart.model.CartEntity
 import com.mscode.domain.common.WrapperResults
+import com.mscode.domain.products.model.Product
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -44,10 +44,10 @@ class CartRepositoryImplTest {
 
     @Test
     fun `addCartProduct should insert mapped product and return id`() = runTest {
-        val product = CartProduct(1, "Test", 10.0, "desc", "cat", "img")
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product.Cart(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
 
-        every { mapper.toCartLocalEntity(product) } returns cartEntity
+        every { mapper.toCartEntity(product) } returns cartEntity
         coEvery { cartLocalDataSource.insertCartProduct(cartEntity) } returns 42L
 
         val result = repository.addCartProduct(product)
@@ -58,10 +58,10 @@ class CartRepositoryImplTest {
 
     @Test
     fun `removeCartProduct should delete mapped product and return count`() = runTest {
-        val product = CartProduct(1, "Test", 10.0, "desc", "cat", "img")
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product.Cart(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
 
-        every { mapper.toCartLocalEntity(product) } returns cartEntity
+        every { mapper.toCartEntity(product) } returns cartEntity
         coEvery { cartLocalDataSource.deleteCartProduct(cartEntity) } returns 1
 
         val result = repository.removeCartProduct(product)
@@ -72,8 +72,8 @@ class CartRepositoryImplTest {
 
     @Test
     fun `getCart should return mapped list of cart products wrapped in success`() = runTest {
-        val product = CartProduct(1, "Test", 10.0, "desc", "cat", "img")
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product.Cart(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
         val entities = listOf(cartEntity, cartEntity.copy(id=2))
         val products = listOf(product, product.copy(id=2))
 

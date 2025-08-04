@@ -65,8 +65,8 @@ class HomeViewModel @Inject constructor(
 
                 is UiEvent.UpdateFavorite -> {
                     toggleFavoriteUseCase(
-                        favoriteProducts = productsUiMapper.toFavoriteProduct(uiEvent.product),
-                        isFavoriteProducts = uiEvent.product.isFavorite
+                        favorite = productsUiMapper.toFavorite(uiEvent.product),
+                        isFavorite = uiEvent.product.isFavorite
                     ).apply {
                         if (this is Success) {
                             _uiState.update { state ->
@@ -83,8 +83,8 @@ class HomeViewModel @Inject constructor(
                 is UiEvent.UpdateCart -> {
                     val isInCart = uiEvent.product.isCart
                     toggleCartUseCase(
-                        cartProduct = productsUiMapper.toCartProduct(uiEvent.product),
-                        isCartProducts = isInCart
+                        cart = productsUiMapper.toCart(uiEvent.product),
+                        isCart = isInCart
                     ).apply {
                         if (this is Success) {
                             _uiState.update { state ->
@@ -97,7 +97,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
-                UiEvent.LoadProductsFavorites -> {
+                UiEvent.LoadFavorites -> {
                     val showFavorites = !_uiStateFavorite.value
                     saveFavoriteIsDisplayed(showFavorites)
                     _uiStateFavorite.value = showFavorites
@@ -162,9 +162,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateFavoriteProductsList(
-        uiProduct: UiProduct,
-        currentList: List<UiProduct>
-    ): List<UiProduct> {
+        uiProduct: UiProduct.Classic,
+        currentList: List<UiProduct.Classic>
+    ): List<UiProduct.Classic> {
         return currentList.map {
             if (it.id == uiProduct.id) {
                 it.copy(isFavorite = !uiProduct.isFavorite)
@@ -175,9 +175,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateCartList(
-        productToUpdate: UiProduct,
-        products: List<UiProduct>
-    ): List<UiProduct> {
+        productToUpdate: UiProduct.Classic,
+        products: List<UiProduct.Classic>
+    ): List<UiProduct.Classic> {
         return products.map { product ->
             if (product.id == productToUpdate.id) {
                 product.copy(isCart = !productToUpdate.isCart)
@@ -187,7 +187,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getCurrentProductListForUpdate(): List<UiProduct> {
+    private suspend fun getCurrentProductListForUpdate(): List<UiProduct.Classic> {
         return if (_uiStateFavorite.value) {
             getAllFavoritesUseCase().map(productsUiMapper::toProductUi)
         } else {
@@ -235,7 +235,7 @@ class HomeViewModel @Inject constructor(
                 _uiStateFavoriteEnabled.value = hasFavorites
 
                 if (!hasFavorites && uiStateFavorite.value) {
-                    onEvent(UiEvent.LoadProductsFavorites)
+                    onEvent(UiEvent.LoadFavorites)
                 }
             }
         }

@@ -1,8 +1,8 @@
 package com.mscode.domain.favorites.usecase
 
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
+import com.mscode.domain.products.model.Product
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -16,7 +16,7 @@ class ToggleFavoriteUseCaseTest {
     private lateinit var favoritesRepository: FavoriteRepository
     private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
 
-    private val favorite = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val favorite = Product.Favorite(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 
 
     @BeforeEach
@@ -28,52 +28,52 @@ class ToggleFavoriteUseCaseTest {
     @Test
     fun `should return Success when removing favorite succeeds`() = runTest {
         // Given
-        coEvery { favoritesRepository.deleteFavorites(favorite) } returns 1
+        coEvery { favoritesRepository.deleteFavorite(favorite) } returns 1
 
         // When
-        val result = toggleFavoriteUseCase(favorite, isFavoriteProducts = true)
+        val result = toggleFavoriteUseCase(favorite, isFavorite = true)
 
         // Then
         assertTrue(result is WrapperResults.Success)
-        coVerify(exactly = 1) { favoritesRepository.deleteFavorites(favorite) }
+        coVerify(exactly = 1) { favoritesRepository.deleteFavorite(favorite) }
     }
 
     @Test
     fun `should return Error when removing favorite fails`() = runTest {
         // Given
-        coEvery { favoritesRepository.deleteFavorites(favorite) } returns 0
+        coEvery { favoritesRepository.deleteFavorite(favorite) } returns 0
 
         // When
-        val result = toggleFavoriteUseCase(favorite, isFavoriteProducts = true)
+        val result = toggleFavoriteUseCase(favorite, isFavorite = true)
 
         // Then
         assertTrue(result is WrapperResults.Error)
-        coVerify(exactly = 1) { favoritesRepository.deleteFavorites(favorite) }
+        coVerify(exactly = 1) { favoritesRepository.deleteFavorite(favorite) }
     }
 
     @Test
     fun `should return Success when adding favorite succeeds`() = runTest {
         // Given
-        coEvery { favoritesRepository.addFavorites(favorite) } returns 5L
+        coEvery { favoritesRepository.addFavorite(favorite) } returns 5L
 
         // When
-        val result = toggleFavoriteUseCase(favorite, isFavoriteProducts = false)
+        val result = toggleFavoriteUseCase(favorite, isFavorite = false)
 
         // Then
         assertTrue(result is WrapperResults.Success)
-        coVerify(exactly = 1) { favoritesRepository.addFavorites(favorite) }
+        coVerify(exactly = 1) { favoritesRepository.addFavorite(favorite) }
     }
 
     @Test
     fun `should return Error when adding favorite fails`() = runTest {
         // Given
-        coEvery { favoritesRepository.addFavorites(favorite) } returns -1L
+        coEvery { favoritesRepository.addFavorite(favorite) } returns -1L
 
         // When
-        val result = toggleFavoriteUseCase(favorite, isFavoriteProducts = false)
+        val result = toggleFavoriteUseCase(favorite, isFavorite = false)
 
         // Then
         assertTrue(result is WrapperResults.Error)
-        coVerify(exactly = 1) { favoritesRepository.addFavorites(favorite) }
+        coVerify(exactly = 1) { favoritesRepository.addFavorite(favorite) }
     }
 }

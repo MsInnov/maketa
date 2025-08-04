@@ -1,16 +1,16 @@
 package com.mscode.data.cart.datasource
 
-import com.mscode.data.cart.model.CartProductEntity
+import com.mscode.data.cart.model.CartEntity
 import kotlinx.coroutines.flow.Flow
 
 class CartLocalDataSource(private val dao: CartDao) {
-    suspend fun getCart(): List<CartProductEntity> = dao.getCart()
+    suspend fun getCart(): List<CartEntity> = dao.getCart()
 
-    fun getCartByFlow(): Flow<List<CartProductEntity>> = dao.getCartByFlow()
+    fun getCartByFlow(): Flow<List<CartEntity>> = dao.getCartByFlow()
 
-    suspend fun insertCartProduct(cartProduct: CartProductEntity) = dao.insertCartProduct(cartProduct)
+    suspend fun insertCartProduct(cartEntity: CartEntity) = dao.insertCartProduct(cartEntity)
 
-    suspend fun deleteCartProduct(cartProduct: CartProductEntity) = dao.deleteCartProduct(cartProduct)
+    suspend fun deleteCartProduct(cartEntity: CartEntity) = dao.deleteCartProduct(cartEntity)
 
     suspend fun deleteCart() = dao.deleteCart()
 

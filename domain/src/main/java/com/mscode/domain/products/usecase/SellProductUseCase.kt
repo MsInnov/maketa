@@ -7,6 +7,6 @@ class SellProductUseCase(
     private val repository: ProductsRepository
 ) {
 
-    suspend operator fun invoke(product: Product) = repository.sellProduct(product)
+    suspend operator fun invoke(product: Product.Classic) = repository.sellProduct(product)
 
 }

@@ -6,6 +6,6 @@ sealed class UiState {
 
     data object Idle: UiState()
     data class CategoryProducts(val list: List<String>): UiState()
-    data class FilteredByCategory(val list: List<UiProduct>): UiState()
+    data class FilteredByCategory(val list: List<UiProduct.Classic>): UiState()
     data object ToHome: UiState()
 }

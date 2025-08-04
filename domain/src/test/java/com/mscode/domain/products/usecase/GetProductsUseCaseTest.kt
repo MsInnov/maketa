@@ -18,7 +18,7 @@ class GetProductsUseCaseTest {
     fun `invoke should return Success result from repository`() = runTest {
         // Given
         val productList = listOf(
-            Product(
+            Product.Classic(
                 id = 1,
                 title = "Test Product",
                 price = 19.99,

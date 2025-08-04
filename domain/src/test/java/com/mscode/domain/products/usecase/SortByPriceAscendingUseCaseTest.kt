@@ -9,7 +9,7 @@ class SortByPriceAscendingUseCaseTest {
 
     private lateinit var useCase: SortByPriceAscendingUseCase
 
-    private val product = Product(
+    private val product = Product.Classic(
         id = 1,
         title = "Test Product",
         price = 19.99,

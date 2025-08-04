@@ -1,7 +1,7 @@
 package com.mscode.data.products.repository
 
 import com.mscode.data.cart.datasource.CartLocalDataSource
-import com.mscode.data.cart.model.CartProductEntity
+import com.mscode.data.cart.model.CartEntity
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.model.FavoriteEntity
 import com.mscode.data.network.factory.RetrofitFactory
@@ -58,7 +58,7 @@ class ProductsRepositoryImplTest {
     fun `getProducts returns Success when everything works`() = runTest {
         // Given
         val entity = ProductEntity(1, "Test", 10.0, "desc", "cat", "img")
-        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val product = Product.Classic(1, "Test", 10.0, "desc", "cat", "img", false)
         val api: ProductsApi = mockk()
         val remoteDataSource = mockk<ProductRemoteDataSource>()
         coEvery { favoriteLocalDataSource.getFavoriteById(1) } returns null
@@ -90,7 +90,7 @@ class ProductsRepositoryImplTest {
 
     @Test
     fun `getProductsFilteredByCategory returns products when localProductsDataSource have same category`() = runTest {
-        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val product = Product.Classic(1, "Test", 10.0, "desc", "cat", "img", false)
         val favoriteProducts = FavoriteEntity(1, "Title", 10.0, "Desc", "Cat", "Img")
         every { localProductsDataSource.products } returns listOf(product)
         coEvery { favoriteLocalDataSource.getFavoriteById(1) } returns favoriteProducts
@@ -102,8 +102,8 @@ class ProductsRepositoryImplTest {
 
     @Test
     fun `getCategoryProducts return category of localProductsDataSource`() = runTest {
-        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
-        val product1 = Product(1, "Test", 10.0, "desc", "pulet", "img", false)
+        val product = Product.Classic(1, "Test", 10.0, "desc", "cat", "img", false)
+        val product1 = Product.Classic(1, "Test", 10.0, "desc", "pulet", "img", false)
         every { localProductsDataSource.products } returns listOf(product, product1)
 
         val result = repository.getCategoryProducts()
@@ -131,7 +131,7 @@ class ProductsRepositoryImplTest {
     fun `sellProduct returns Success when newProduct call Success`() = runTest {
         // Given
         val entity = ProductEntity(1, "Test", 10.0, "desc", "cat", "img")
-        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val product = Product.Classic(1, "Test", 10.0, "desc", "cat", "img", false)
         val api: ProductsApi = mockk()
         val remoteDataSource = mockk<ProductRemoteDataSource>()
         every { localConfigDataSource.urls } returns listOf(testUrl).toMutableList()
@@ -152,8 +152,8 @@ class ProductsRepositoryImplTest {
     @Test
     fun `isCartProducts returns flow when getCartByFlow return isCart and localProductsDataSource return product`() = runTest {
         // Given
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
-        val product = Product(1, "Test", 10.0, "desc", "cat", "img", false)
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val product = Product.Classic(1, "Test", 10.0, "desc", "cat", "img", false)
 
         every { cartLocalDataSource.getCartByFlow() } returns flowOf(listOf(cartEntity))
         every { localProductsDataSource.products } returns listOf(product)

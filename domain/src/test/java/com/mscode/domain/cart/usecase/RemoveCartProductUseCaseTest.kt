@@ -1,8 +1,8 @@
 package com.mscode.domain.cart.usecase
 
-import com.mscode.domain.cart.model.CartProduct
 import com.mscode.domain.cart.repository.CartRepository
 import com.mscode.domain.common.WrapperResults
+import com.mscode.domain.products.model.Product
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,7 +17,7 @@ class RemoveCartProductUseCaseTest {
     private val repository: CartRepository = mockk()
     private lateinit var useCase: RemoveCartProductUseCase
 
-    private val cartProduct = CartProduct(
+    private val cart = Product.Cart(
         id = 1,
         title = "Title",
         price = 9.99,
@@ -34,10 +34,10 @@ class RemoveCartProductUseCaseTest {
     @Test
     fun `should return Success when repository returns non-zero`() = runTest {
         // Given
-        coEvery { repository.removeCartProduct(cartProduct) } returns 1
+        coEvery { repository.removeCartProduct(cart) } returns 1
 
         // When
-        val result = useCase(cartProduct)
+        val result = useCase(cart)
 
         // Then
         assertTrue(result is WrapperResults.Success)
@@ -46,10 +46,10 @@ class RemoveCartProductUseCaseTest {
     @Test
     fun `should return Error when repository returns zero`() = runTest {
         // Given
-        coEvery { repository.removeCartProduct(cartProduct) } returns 0
+        coEvery { repository.removeCartProduct(cart) } returns 0
 
         // When
-        val result = useCase(cartProduct)
+        val result = useCase(cart)
 
         // Then
         assertTrue(result is WrapperResults.Error)

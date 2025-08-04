@@ -6,12 +6,12 @@ sealed class UiEvent {
 
     data class FilterByCategory(
         val category: String,
-        val listNotSorted: List<UiProduct>
+        val listNotSorted: List<UiProduct.Classic>
     ): UiEvent()
     data object GetCategory: UiEvent()
     data object Idle: UiEvent()
     data object SortByPriceAscending: UiEvent()
     data object SortByPriceDescending: UiEvent()
-    data class UpdateFavorite(val products: UiProduct): UiEvent()
+    data class UpdateFavorite(val products: UiProduct.Classic): UiEvent()
 
 }

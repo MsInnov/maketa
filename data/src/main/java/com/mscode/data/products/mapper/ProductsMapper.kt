@@ -8,7 +8,7 @@ class ProductsMapper {
     fun toProducts(
         productEntity: ProductEntity,
         isFavorite: Boolean
-    ) = Product(
+    ) = Product.Classic(
         id = productEntity.id,
         title = productEntity.title,
         price = productEntity.price,
@@ -19,13 +19,13 @@ class ProductsMapper {
     )
 
     fun toProductEntity(
-        products: Product
+        product: Product.Classic
     ) = ProductEntity(
-        id = products.id,
-        title = products.title,
-        price = products.price,
-        description = products.description,
-        category = products.category,
-        image = products.image
+        id = product.id,
+        title = product.title,
+        price = product.price,
+        description = product.description,
+        category = product.category,
+        image = product.image
     )
 }

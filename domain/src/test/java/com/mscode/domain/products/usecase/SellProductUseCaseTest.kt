@@ -16,7 +16,7 @@ class SellProductUseCaseTest {
     private val repository: ProductsRepository = mockk()
     private lateinit var useCase: SellProductUseCase
 
-    private val product = Product(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val product = Product.Classic(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 
     @BeforeEach
     fun setup() {

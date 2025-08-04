@@ -4,6 +4,6 @@ sealed class UiState {
 
     data object Loading : UiState()
     data object Error : UiState()
-    data class Products(val products: List<UiProduct>) : UiState()
+    data class Products(val products: List<UiProduct.Classic>) : UiState()
 
 }

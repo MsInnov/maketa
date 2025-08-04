@@ -23,7 +23,7 @@ class ProductLocalDataSourceTest {
     @Test
     fun `saveProducts should update products list`() {
         // Given
-        val product1 = Product(
+        val product1 = Product.Classic(
             id = 1,
             title = "iPhone 15",
             price = 1299.99,
@@ -33,7 +33,7 @@ class ProductLocalDataSourceTest {
             isFavorite = false
         )
 
-        val product2 = Product(
+        val product2 = Product.Classic(
             id = 2,
             title = "Nike Air Max",
             price = 149.99,
