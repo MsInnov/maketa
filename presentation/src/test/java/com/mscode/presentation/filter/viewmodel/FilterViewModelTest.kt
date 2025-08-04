@@ -2,7 +2,6 @@ package com.mscode.presentation.filter.viewmodel
 
 import app.cash.turbine.test
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.usecase.ToggleFavoriteUseCase
 import com.mscode.domain.products.model.Product
 import com.mscode.domain.products.usecase.GetCategoryProductsUseCase
@@ -45,11 +44,11 @@ class FilterViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val product = Product(1, "Title", 10.0, "Desc", "category", "Img", false)
+    private val product = Product.Classic(1, "Title", 10.0, "Desc", "category", "Img", false)
 
-    private val uiProduct1 = UiProduct(1, "Title", 10.0, "Desc", "category", "Img", false, false)
-    private val uiProduct2 = UiProduct(2, "Title", 10.0, "Desc", "Cat", "Img", false, false)
-    private val favoriteProducts = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val uiProduct1 = UiProduct.Classic(1, "Title", 10.0, "Desc", "category", "Img", false, false)
+    private val uiProduct2 = UiProduct.Classic(2, "Title", 10.0, "Desc", "Cat", "Img", false, false)
+    private val favorite = Product.Favorite(1, "Title", 10.0, "Desc", "Cat", "Img", false)
 
     @BeforeEach
     fun setup() {
@@ -314,8 +313,8 @@ class FilterViewModelTest {
     fun `should emit FilteredByCategory with products when UpdateFavorite is called`() = runTest {
         // Given
         coEvery { isCartFlowUseCase() } returns flowOf(listOf(1 to false))
-        coEvery { productsUiMapper.toFavoriteProduct(uiProduct1) } returns favoriteProducts
-        coEvery { toggleFavoriteUseCase(favoriteProducts, false) } returns WrapperResults.Success(Unit)
+        coEvery { productsUiMapper.toFavorite(uiProduct1) } returns favorite
+        coEvery { toggleFavoriteUseCase(favorite, false) } returns WrapperResults.Success(Unit)
         coEvery { getProductsByCategoryUseCase("category") } returns flowOf(listOf(product))
         coEvery { productsUiMapper.toProductUi(product) } returns uiProduct1
         viewModel = FilterViewModel(

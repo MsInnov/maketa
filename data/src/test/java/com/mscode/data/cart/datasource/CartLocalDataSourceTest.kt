@@ -1,7 +1,6 @@
 package com.mscode.data.cart.datasource
 
-import com.mscode.data.cart.model.CartProductEntity
-import io.mockk.Awaits
+import com.mscode.data.cart.model.CartEntity
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -42,7 +41,7 @@ class CartLocalDataSourceTest {
 
     @Test
     fun `getCart should call dao getCart and return result`() = runTest {
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
         val expected = listOf(cartEntity)
         coEvery { dao.getCart() } returns expected
 
@@ -54,7 +53,7 @@ class CartLocalDataSourceTest {
 
     @Test
     fun `getCartByFlow should return dao flow`() {
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
         val flow = flowOf(listOf(cartEntity))
         every { dao.getCartByFlow() } returns flow
 
@@ -66,7 +65,7 @@ class CartLocalDataSourceTest {
 
     @Test
     fun `insertCartProduct should call dao insert`() = runTest {
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
         coEvery { dao.insertCartProduct(cartEntity) } returns 42L
 
         dataSource.insertCartProduct(cartEntity)
@@ -76,7 +75,7 @@ class CartLocalDataSourceTest {
 
     @Test
     fun `deleteCartProduct should call dao delete`() = runTest {
-        val cartEntity = CartProductEntity(1, "Test", 10.0, "desc", "cat", "img")
+        val cartEntity = CartEntity(1, "Test", 10.0, "desc", "cat", "img")
         coEvery { dao.deleteCartProduct(cartEntity) } returns 1
 
         dataSource.deleteCartProduct(cartEntity)

@@ -9,7 +9,7 @@ import com.mscode.domain.cart.usecase.RemoveCartProductUseCase
 import com.mscode.domain.cart.usecase.RemoveCartUseCase
 import com.mscode.domain.common.WrapperResults
 import com.mscode.presentation.cart.mapper.CartProductUiMapper
-import com.mscode.presentation.cart.model.UiCartProduct
+import com.mscode.presentation.home.model.UiProduct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -33,7 +33,7 @@ class CartViewModel @Inject constructor(
 
                 UiEvent.GetCarts -> getCart()
 
-                is UiEvent.DeleteItem -> deleteCart(event.uiCartProduct)
+                is UiEvent.DeleteItem -> deleteCart(event.uiCart)
             }
         }
     }
@@ -41,16 +41,16 @@ class CartViewModel @Inject constructor(
     private suspend fun getCart() {
         when (val result = getCartsUseCase()) {
             is WrapperResults.Success -> {
-                val uiCartList = result.data.map { cartProductUiMapper.toUiCartProduct(it) }
-                _uiState.value = UiState.DisplayPurchase(uiCartList)
+                val uiCartList = result.data.map { cartProductUiMapper.toUiCart(it) }
+                _uiState.value = UiState.DisplayCart(uiCartList)
             }
             else -> Unit
         }
     }
 
-    private suspend fun deleteCart(uiCartProduct: UiCartProduct) {
-        val certProduct = cartProductUiMapper.toCartProduct(uiCartProduct)
-        when (removeCartProductUseCase(certProduct)) {
+    private suspend fun deleteCart(uiCart: UiProduct.Cart) {
+        val cartProduct = cartProductUiMapper.toCart(uiCart)
+        when (removeCartProductUseCase(cartProduct)) {
             is WrapperResults.Success -> getCart()
             else -> Unit
         }

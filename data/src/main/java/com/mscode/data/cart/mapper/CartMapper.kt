@@ -1,31 +1,31 @@
 package com.mscode.data.cart.mapper
 
-import com.mscode.data.cart.model.CartProductEntity
-import com.mscode.domain.cart.model.CartProduct
+import com.mscode.data.cart.model.CartEntity
+import com.mscode.domain.products.model.Product
 
 class CartMapper {
 
-    fun toCartLocalEntity(cartProduct: CartProduct): CartProductEntity =
-        CartProductEntity(
-            id = cartProduct.id,
-            title = cartProduct.title,
-            price = cartProduct.price,
-            image = cartProduct.image,
-            category = cartProduct.category,
-            description = cartProduct.description
+    fun toCartEntity(cart: Product.Cart): CartEntity =
+        CartEntity(
+            id = cart.id,
+            title = cart.title,
+            price = cart.price,
+            image = cart.image,
+            category = cart.category,
+            description = cart.description
         )
 
     fun toCartProducts(
-        cart: List<CartProductEntity>
-    ): List<CartProduct> =
-        cart.map { cartProductEntity ->
-            CartProduct(
-                id = cartProductEntity.id,
-                title = cartProductEntity.title,
-                image = cartProductEntity.image,
-                price = cartProductEntity.price,
-                category = cartProductEntity.category,
-                description = cartProductEntity.description
+        cartEntities: List<CartEntity>
+    ): List<Product.Cart> =
+        cartEntities.map { cartEntity ->
+            Product.Cart(
+                id = cartEntity.id,
+                title = cartEntity.title,
+                image = cartEntity.image,
+                price = cartEntity.price,
+                category = cartEntity.category,
+                description = cartEntity.description
             )
         }
 

@@ -3,8 +3,8 @@ package com.mscode.data.cart.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "cartProduct")
-data class CartProductEntity (
+@Entity(tableName = "cart")
+data class CartEntity (
     @PrimaryKey val id: Int,
     val title: String,
     val price: Double,

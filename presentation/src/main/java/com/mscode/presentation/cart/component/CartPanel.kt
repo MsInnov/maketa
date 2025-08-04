@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import coil.compose.AsyncImage
 import androidx.compose.ui.res.painterResource
 import com.mscode.presentation.cart.model.UiEvent
-import com.mscode.presentation.cart.model.UiCartProduct
 import com.mscode.presentation.cart.model.UiState
 import com.mscode.presentation.cart.viewmodel.CartViewModel
 import androidx.compose.material.DismissDirection
@@ -30,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import com.mscode.presentation.home.model.UiProduct
 
 @Composable
 fun CartPanel(
@@ -48,7 +48,7 @@ fun CartPanel(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         when (val state = uiState) {
-            is UiState.DisplayPurchase -> {
+            is UiState.DisplayCart -> {
                 val items = state.uiCart
 
                 LaunchedEffect(items) {
@@ -95,7 +95,7 @@ fun CartPanel(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SwipeToDeleteItem(
-    item: UiCartProduct,
+    item: UiProduct.Cart,
     onDelete: () -> Unit
 ) {
     val dismissKey = remember(item.id, item.hashCode()) { mutableStateOf(0) }
@@ -141,7 +141,7 @@ fun SwipeToDeleteItem(
 }
 
 @Composable
-fun Item(purchase: UiCartProduct) {
+fun Item(cart: UiProduct.Cart) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,7 +158,7 @@ fun Item(purchase: UiCartProduct) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = purchase.image,
+                model = cart.image,
                 contentDescription = null,
                 placeholder = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
                 error = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
@@ -173,18 +173,18 @@ fun Item(purchase: UiCartProduct) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = purchase.title,
+                    text = cart.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = purchase.category,
+                    text = cart.category,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${purchase.price} €",
+                    text = "${cart.price} €",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold

@@ -125,7 +125,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 @Composable
 fun ProductsScreenWithSidePanel(
     homeViewModel: HomeViewModel,
-    products: List<UiProduct>,
+    products: List<UiProduct.Classic>,
     filterViewModel: FilterViewModel,
     goToHome: () -> Unit
 ) {
@@ -268,7 +268,7 @@ fun ProductsScreenWithSidePanel(
                             onGoFavorite = {
                                 filterViewModel.onEvent(com.mscode.presentation.filter.model.UiEvent.Idle)
                                 panelOpen = false
-                                homeViewModel.onEvent(UiEvent.LoadProductsFavorites)
+                                homeViewModel.onEvent(UiEvent.LoadFavorites)
                             },
                             onGoSelling = {
                                 homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)
@@ -409,9 +409,9 @@ fun ProductsScreenWithSidePanel(
 @Composable
 fun ProductItem(
     homeViewModel: HomeViewModel,
-    product: UiProduct,
-    onFavoriteClick: (UiProduct) -> Unit,
-    onCartClick: (UiProduct) -> Unit
+    product: UiProduct.Classic,
+    onFavoriteClick: (UiProduct.Classic) -> Unit,
+    onCartClick: (UiProduct.Classic) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val isFavoriteAndCartIsVisible = homeViewModel.uiStateFavoriteAndCartDisplay.collectAsState().value

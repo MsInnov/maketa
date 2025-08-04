@@ -4,7 +4,6 @@ import com.mscode.data.cart.datasource.CartLocalDataSource
 import com.mscode.data.favorites.datasource.FavoriteLocalDataSource
 import com.mscode.data.favorites.mapper.FavoriteMapper
 import com.mscode.domain.common.WrapperResults
-import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import com.mscode.domain.products.model.Product
 import kotlinx.coroutines.flow.Flow
@@ -17,18 +16,18 @@ class FavoriteRepositoryImpl(
     private val favoriteMapper: FavoriteMapper
 ) : FavoriteRepository {
 
-    override suspend fun addFavorites(favoriteProducts: FavoriteProduct) =
-        favoriteLocalDataSource.insertFavorite(favoriteMapper.toProductsEntity(favoriteProducts))
+    override suspend fun addFavorite(favorite: Product.Favorite) =
+        favoriteLocalDataSource.insertFavorite(favoriteMapper.toProductsEntity(favorite))
 
-    override suspend fun deleteFavorites(favoriteProducts: FavoriteProduct) =
-        favoriteLocalDataSource.deleteFavorite(favoriteMapper.toProductsEntity(favoriteProducts))
+    override suspend fun deleteFavorite(favorite: Product.Favorite) =
+        favoriteLocalDataSource.deleteFavorite(favoriteMapper.toProductsEntity(favorite))
 
-    override suspend fun getFavorites(): List<FavoriteProduct> =
+    override suspend fun getFavorites(): List<Product.Favorite> =
         favoriteLocalDataSource.getAllFavorites().map { favorite ->
             favoriteMapper.toFavoriteProducts(favorite, isCart(favorite.id))
         }
 
-    override suspend fun getFavorite(id: Int): WrapperResults<FavoriteProduct> =
+    override suspend fun getFavorite(id: Int): WrapperResults<Product.Favorite> =
         favoriteLocalDataSource.getFavoriteById(id)?.let {
             WrapperResults.Success(favoriteMapper.toFavoriteProducts(it, isCart(it.id)))
         } ?: WrapperResults.Error(Exception())
@@ -39,12 +38,12 @@ class FavoriteRepositoryImpl(
 
     override fun getIsDisplayed(): Boolean = favoriteLocalDataSource.isDisplayed
 
-    override suspend fun getFavoritesFilteredByCategory(category: String): List<Product> =
+    override suspend fun getFavoritesFilteredByCategory(category: String): List<Product.Classic> =
         favoriteLocalDataSource.getAllFavorites()
             .filter { favorites -> favorites.category == category }
-            .map { favoritesProduct -> favoriteMapper.toProducts(favoritesProduct) }
+            .map { favorite -> favoriteMapper.toProducts(favorite) }
 
-    override fun getFavoritesFilteredByCategoryFlow(category: String): Flow<List<Product>> =
+    override fun getFavoritesFilteredByCategoryFlow(category: String): Flow<List<Product.Classic>> =
         favoriteLocalDataSource.getAllFavoritesFlow()
             .map { products ->
                 products
@@ -52,7 +51,7 @@ class FavoriteRepositoryImpl(
                     .map { favoritesProduct -> favoriteMapper.toProducts(favoritesProduct) }
             }
 
-    override fun getFavoritesFlow(): Flow<List<FavoriteProduct>> =
+    override fun getFavoritesFlow(): Flow<List<Product.Favorite>> =
         favoriteLocalDataSource.getAllFavoritesFlow()
             .map { favoritesProduct ->
                 favoritesProduct.map { favorite ->

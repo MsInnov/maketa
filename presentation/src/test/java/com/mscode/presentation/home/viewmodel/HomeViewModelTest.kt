@@ -1,10 +1,8 @@
 package com.mscode.presentation.home.viewmodel
 
 import app.cash.turbine.test
-import com.mscode.domain.cart.model.CartProduct
 import com.mscode.domain.cart.usecase.ToggleCartUseCase
 import com.mscode.domain.common.WrapperResults.*
-import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.usecase.GetAllFavoritesFlowUseCase
 import com.mscode.domain.favorites.usecase.GetAllFavoritesUseCase
 import com.mscode.domain.favorites.usecase.SaveFavoriteIsDisplayedUseCase
@@ -47,10 +45,10 @@ class HomeViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val product = Product(1, "Title", 10.0, "Desc", "Cat", "Img", false)
-    private val favoriteProducts = FavoriteProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false)
-    private val uiProduct = UiProduct(1, "Title", 10.0, "Desc", "Cat", "Img", false, false)
-    private val cartProduct = CartProduct(1, "Title", 10.0, "Desc", "Cat", "Img")
+    private val product = Product.Classic(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val favorite = Product.Favorite(1, "Title", 10.0, "Desc", "Cat", "Img", false)
+    private val uiProduct = UiProduct.Classic(1, "Title", 10.0, "Desc", "Cat", "Img", false, false)
+    private val cart = Product.Cart(1, "Title", 10.0, "Desc", "Cat", "Img")
 
     @BeforeEach
     fun setup() {
@@ -128,7 +126,7 @@ class HomeViewModelTest {
         coEvery { getProductsUseCase() } returns Success(domainProducts)
         coEvery { isCartFlowUseCase() } returns flowOf(listOf(1 to false))
         coEvery { getAllFavoritesFlowUseCase() } returns flowOf(
-            listOf(favoriteProducts)
+            listOf(favorite)
         )
         every { productsUiMapper.toProductUi(product) } returns uiProducts.first()
         // When
@@ -244,8 +242,8 @@ class HomeViewModelTest {
         coEvery { isCartFlowUseCase() } returns flowOf(listOf(1 to false))
         coEvery { getProductsUseCase() } returns Success(listOf(product))
         coEvery { getAllFavoritesFlowUseCase() } returns flowOf()
-        every { productsUiMapper.toFavoriteProduct(uiProduct.copy(title = "titre"))} returns favoriteProducts
-        coEvery { toggleFavoriteUseCase(favoriteProducts, false) } returns Success(Unit)
+        every { productsUiMapper.toFavorite(uiProduct.copy(title = "titre"))} returns favorite
+        coEvery { toggleFavoriteUseCase(favorite, false) } returns Success(Unit)
         every { productsUiMapper.toProductUi(product) } returns uiProduct
         // When
         viewModel = HomeViewModel(
@@ -279,8 +277,8 @@ class HomeViewModelTest {
         coEvery { getAllFavoritesFlowUseCase() } returns flowOf()
         every { saveFavoriteIsDisplayed(true) } returns Unit
         every { productsUiMapper.toProductUi(product) } returns uiProduct.copy(title = "titre")
-        every { productsUiMapper.toProductUi(favoriteProducts) } returns uiProduct.copy(isFavorite = true)
-        coEvery { getAllFavoritesUseCase() } returns listOf(favoriteProducts)
+        every { productsUiMapper.toProductUi(favorite) } returns uiProduct.copy(isFavorite = true)
+        coEvery { getAllFavoritesUseCase() } returns listOf(favorite)
         // When
         viewModel = HomeViewModel(
             getTokenUseCase,
@@ -293,7 +291,7 @@ class HomeViewModelTest {
             isCartFlowUseCase,
             saveFavoriteIsDisplayed
         )
-        viewModel.onEvent(UiEvent.LoadProductsFavorites)
+        viewModel.onEvent(UiEvent.LoadFavorites)
         // Then
         viewModel.uiState.test {
             assertEquals(UiState.Loading, awaitItem()) // initial
@@ -312,13 +310,13 @@ class HomeViewModelTest {
         coEvery { isCartFlowUseCase() } returns flowOf(listOf(1 to false))
         coEvery { getProductsUseCase() } returns Success(listOf(product)) andThen Success(listOf(product.copy(isFavorite = false, title = "titre")))
         coEvery { getAllFavoritesFlowUseCase() } returns flowOf()
-        coEvery { getAllFavoritesUseCase() } returns listOf(favoriteProducts)
+        coEvery { getAllFavoritesUseCase() } returns listOf(favorite)
         every { saveFavoriteIsDisplayed(true) } returns Unit
         every { saveFavoriteIsDisplayed(false) } returns Unit
         every { productsUiMapper.toProductUi(product) } returns uiProduct
         every { productsUiMapper.toProductUi(product.copy(isFavorite = false, title = "titre")) } returns uiProduct.copy(title = "titre")
-        every { productsUiMapper.toProductUi(favoriteProducts) } returns uiProduct.copy(isFavorite = true)
-        coEvery { getAllFavoritesUseCase() } returns listOf(favoriteProducts)
+        every { productsUiMapper.toProductUi(favorite) } returns uiProduct.copy(isFavorite = true)
+        coEvery { getAllFavoritesUseCase() } returns listOf(favorite)
         // When
         viewModel = HomeViewModel(
             getTokenUseCase,
@@ -331,8 +329,8 @@ class HomeViewModelTest {
             isCartFlowUseCase,
             saveFavoriteIsDisplayed
         )
-        viewModel.onEvent(UiEvent.LoadProductsFavorites)
-        viewModel.onEvent(UiEvent.LoadProductsFavorites)
+        viewModel.onEvent(UiEvent.LoadFavorites)
+        viewModel.onEvent(UiEvent.LoadFavorites)
         // Then
         viewModel.uiState.test {
             assertEquals(UiState.Loading, awaitItem()) // initial
@@ -403,7 +401,7 @@ class HomeViewModelTest {
             isCartFlowUseCase,
             saveFavoriteIsDisplayed
         )
-        viewModel.onEvent(UiEvent.LoadProductsFavorites)
+        viewModel.onEvent(UiEvent.LoadFavorites)
         viewModel.onEvent(UiEvent.LoadProduct)
         // Then
         viewModel.uiStateFavorite.test {
@@ -460,8 +458,8 @@ class HomeViewModelTest {
         coEvery { getProductsUseCase() } returns Success(domainProducts)
         coEvery { getAllFavoritesFlowUseCase() } returns flowOf()
         every { productsUiMapper.toProductUi(product) } returns uiProducts.first()
-        every { productsUiMapper.toCartProduct(uiProduct) } returns cartProduct
-        coEvery { toggleCartUseCase(cartProduct, false) } returns Success(Unit)
+        every { productsUiMapper.toCart(uiProduct) } returns cart
+        coEvery { toggleCartUseCase(cart, false) } returns Success(Unit)
         // When
         viewModel = HomeViewModel(
             getTokenUseCase,

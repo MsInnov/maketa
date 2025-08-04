@@ -4,6 +4,6 @@ import com.mscode.domain.products.model.Product
 
 class SortByPriceAscendingUseCase {
 
-    operator fun invoke(products: List<Product>) = products.sortedBy { it.price }
+    operator fun invoke(products: List<Product.Classic>) = products.sortedBy { it.price }
 
 }

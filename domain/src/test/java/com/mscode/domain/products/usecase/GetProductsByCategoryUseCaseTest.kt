@@ -1,6 +1,5 @@
 package com.mscode.domain.products.usecase
 
-import com.mscode.domain.favorites.model.FavoriteProduct
 import com.mscode.domain.favorites.repository.FavoriteRepository
 import com.mscode.domain.products.model.Product
 import com.mscode.domain.products.repository.ProductsRepository
@@ -23,7 +22,7 @@ class GetProductsByCategoryUseCaseTest {
 
     private lateinit var useCase: GetProductsByCategoryUseCase
 
-    private val product = Product(
+    private val product = Product.Classic(
         id = 1,
         title = "Test Product",
         price = 19.99,
