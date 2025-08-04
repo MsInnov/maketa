@@ -24,9 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.mscode.presentation.R
 import com.mscode.presentation.home.screen.lightBackground
 import com.mscode.presentation.login.model.UiEvent
 import com.mscode.presentation.login.model.UiState
@@ -63,24 +65,26 @@ fun LoginPanel(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Connexion", style = MaterialTheme.typography.h6)
+                Text(stringResource(R.string.login_connection), style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(16.dp))
+                //en dure pour faciliter l'utilisation de l'app
                 var user by remember { mutableStateOf("johnd") }
                 TextField(
                     value = user,
                     onValueChange = { user = it },
-                    label = { Text("Nom d'utilisateur") },
+                    label = { Text(stringResource(R.string.login_user_name)) },
                     singleLine = true,
                     isError = uiState.value == UiState.ErrorLogin || uiState.value == UiState.Error
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
+                //en dure pour faciliter l'utilisation de l'app
                 var pass by remember { mutableStateOf("m38rmF\$") }
                 TextField(
                     value = pass,
                     onValueChange = { pass = it },
-                    label = { Text("Mot de passe") },
+                    label = { Text(stringResource(R.string.login_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
@@ -93,17 +97,17 @@ fun LoginPanel(
                     onClick = { viewModel.onEvent(UiEvent.Login(user, pass)) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Se connecter")
+                    Text(stringResource(R.string.login_to_connect))
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 TextButton(onClick = onRegisterClick) {
-                    Text("S'inscrire")
+                    Text(stringResource(R.string.login_to_register))
                 }
 
                 TextButton(onClick = onClose) {
-                    Text("Fermer")
+                    Text(stringResource(R.string.login_closed))
                 }
             }
         }

@@ -12,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mscode.presentation.R
 import com.mscode.presentation.payment.model.BankInfo
 import com.mscode.presentation.payment.model.CardType
 
@@ -52,7 +54,7 @@ fun BankInfoPanel(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Informations Bancaires",
+            text = stringResource(R.string.payment_infos_banks),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -85,13 +87,13 @@ fun BankInfoPanel(
         OutlinedTextField(
             value = cardNumber,
             onValueChange = { cardNumber = it.take(16).filter { c -> c.isDigit() } },
-            label = { Text("Numéro de carte") },
+            label = { Text(stringResource(R.string.payment_card_number)) },
             leadingIcon = { Icon(Icons.Default.CreditCard, null) },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             isError = cardNumberError,
             supportingText = {
-                if (cardNumberError) Text("Le numéro doit contenir 16 chiffres.")
+                if (cardNumberError) Text(stringResource(R.string.payment_minimal_numbers_warning))
             },
             shape = RoundedCornerShape(12.dp)
         )
@@ -104,7 +106,7 @@ fun BankInfoPanel(
                 modifier = Modifier.weight(1f),
                 isError = expiryDateError,
                 supportingText = {
-                    if (expiryDateError) Text("Date invalide ou expirée.")
+                    if (expiryDateError) Text(stringResource(R.string.payment_date_expired_warning))
                 },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -116,7 +118,7 @@ fun BankInfoPanel(
                 modifier = Modifier.weight(1f),
                 isError = cvvError,
                 supportingText = {
-                    if (cvvError) Text("CVV invalide.")
+                    if (cvvError) Text(stringResource(R.string.payment_cvv_not_valid_warning))
                 },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -125,11 +127,11 @@ fun BankInfoPanel(
         OutlinedTextField(
             value = cardHolderName,
             onValueChange = { cardHolderName = it },
-            label = { Text("Nom sur la carte") },
+            label = { Text(stringResource(R.string.payment_card_owner)) },
             modifier = Modifier.fillMaxWidth(),
             isError = cardHolderNameError,
             supportingText = {
-                if (cardHolderNameError) Text("Champ requis.")
+                if (cardHolderNameError) Text(stringResource(R.string.payment_field_required))
             },
             shape = RoundedCornerShape(12.dp)
         )
@@ -155,7 +157,7 @@ fun BankInfoPanel(
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Valider", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.payment_validate), fontWeight = FontWeight.Bold)
         }
     }
 }

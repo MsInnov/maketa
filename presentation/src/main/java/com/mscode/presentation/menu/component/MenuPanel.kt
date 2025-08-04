@@ -40,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mscode.presentation.R
 import com.mscode.presentation.filter.viewmodel.FilterViewModel
 import com.mscode.presentation.home.screen.lightBackground
 import com.mscode.presentation.home.viewmodel.HomeViewModel
@@ -107,7 +109,12 @@ fun MenuAnimated(
     LaunchedEffect(Unit) {
         visible = true
     }
-
+    val account = stringResource(R.string.menu_account)
+    val filter = stringResource(R.string.menu_filter)
+    val cart = stringResource(R.string.menu_cart)
+    val sell = stringResource(R.string.menu_sell)
+    val favorite = stringResource(R.string.menu_favorite)
+    val disconnect = stringResource(R.string.menu_disconnect)
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(animationSpec = tween(500)),
@@ -119,12 +126,12 @@ fun MenuAnimated(
             onClose = onClose,
             onItemClick = { selectedItem ->
                 when (selectedItem) {
-                    "Compte" -> menuViewModel.onEvent(UiEvent.Account)
-                    "Filtre" -> menuViewModel.onEvent(UiEvent.Filter)
-                    "Panier" -> menuViewModel.onEvent(UiEvent.Cart)
-                    "Vendre" -> menuViewModel.onEvent(UiEvent.Selling)
-                    "Favoris" -> menuViewModel.onEvent(UiEvent.Favorite)
-                    "Se déconnecter" -> menuViewModel.onEvent(UiEvent.Disconnect)
+                    account -> menuViewModel.onEvent(UiEvent.Account)
+                    filter -> menuViewModel.onEvent(UiEvent.Filter)
+                    cart -> menuViewModel.onEvent(UiEvent.Cart)
+                    sell -> menuViewModel.onEvent(UiEvent.Selling)
+                    favorite -> menuViewModel.onEvent(UiEvent.Favorite)
+                    disconnect -> menuViewModel.onEvent(UiEvent.Disconnect)
                 }
             }
         )
@@ -140,12 +147,12 @@ fun MenuList(
     onItemClick: (String) -> Unit
 ) {
     val menuItems = listOf(
-        "Compte" to Icons.Default.Person,
-        "Filtre" to Icons.Default.FilterList,
-        "Vendre" to Icons.Default.Sell,
-        "Panier" to Icons.Default.ShoppingCart,
-        "Favoris" to Icons.Default.Favorite,
-        "Se déconnecter" to Icons.Default.ExitToApp
+        stringResource(R.string.menu_account) to Icons.Default.Person,
+        stringResource(R.string.menu_filter) to Icons.Default.FilterList,
+        stringResource(R.string.menu_sell) to Icons.Default.Sell,
+        stringResource(R.string.menu_cart) to Icons.Default.ShoppingCart,
+        stringResource(R.string.menu_favorite) to Icons.Default.Favorite,
+        stringResource(R.string.menu_disconnect) to Icons.Default.ExitToApp
     )
     val isFavoriteDisplayed = homeViewModel.uiStateFavorite.collectAsState()
     val isFilterDisplayed = filterViewModel.uiStateIsDisplayed.collectAsState()
@@ -166,8 +173,8 @@ fun MenuList(
         ) {
             menuItems.forEach { (title, icon) ->
                 val isEnabled = when (title) {
-                    "Favoris" -> isFavoriteHomeEnabledState.value
-                    "Panier" -> isCartHomeEnabledState.value
+                    stringResource(R.string.menu_favorite) -> isFavoriteHomeEnabledState.value
+                    stringResource(R.string.menu_cart) -> isCartHomeEnabledState.value
                     else -> true
                 }
                 Card(
@@ -186,10 +193,10 @@ fun MenuList(
                         Icon(
                             imageVector = icon,
                             contentDescription = title,
-                            tint = if (title == "Favoris") {
+                            tint = if (title == stringResource(R.string.menu_favorite)) {
                                 if (isFavoriteDisplayed.value) Color.Red else Primary
                             } else {
-                                if(title == "Filtre") {
+                                if(title == stringResource(R.string.menu_filter)) {
                                     if (isFilterDisplayed.value) Color.Red else Primary
                                 } else Primary
                             }
@@ -209,7 +216,7 @@ fun MenuList(
                 onClick = onClose,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text("Fermer")
+                Text(stringResource(R.string.menu_closed))
             }
         }
     }

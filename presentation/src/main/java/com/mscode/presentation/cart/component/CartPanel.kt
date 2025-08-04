@@ -29,6 +29,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.ui.res.stringResource
+import com.mscode.presentation.R
 import com.mscode.presentation.home.model.UiProduct
 
 @Composable
@@ -87,7 +89,7 @@ fun CartPanel(
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Acheter")
+            Text(stringResource(R.string.cart_buy))
         }
     }
 }
@@ -128,7 +130,7 @@ fun SwipeToDeleteItem(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Supprimer",
+                        contentDescription = stringResource(R.string.cart_delete),
                         tint = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
@@ -160,8 +162,8 @@ fun Item(cart: UiProduct.Cart) {
             AsyncImage(
                 model = cart.image,
                 contentDescription = null,
-                placeholder = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
-                error = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
+                placeholder = painterResource(id = R.drawable.placeholder),
+                error = painterResource(id = R.drawable.placeholder),
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(10.dp))

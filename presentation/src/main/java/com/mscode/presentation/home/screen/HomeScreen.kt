@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,10 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.mscode.presentation.R
 import com.mscode.presentation.account.model.UiEvent.GetProfile
 import com.mscode.presentation.account.model.UiState.Error
 import com.mscode.presentation.account.model.UiState.Profile
-import com.mscode.presentation.account.screen.AccountInfoPanel
+import com.mscode.presentation.account.component.AccountInfoPanel
 import com.mscode.presentation.account.viewmodel.AccountViewModel
 import com.mscode.presentation.cart.component.CartPanel
 import com.mscode.presentation.cart.model.UiEvent.DeleteAllCarts
@@ -182,7 +184,7 @@ fun ProductsScreenWithSidePanel(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Menu",
+                text = stringResource(R.string.home_menu),
                 color = Color.White,
                 modifier = Modifier.rotate(-90f),
                 style = MaterialTheme.typography.button
@@ -320,14 +322,24 @@ fun ProductsScreenWithSidePanel(
         val uiStateLogin = loginViewModel.uiState.collectAsState()
         val uiStateSell = sellViewModel.uiState.collectAsState()
         val uiStateBank = paymentViewModel.uiState.collectAsState()
+        val textItemPurchased = stringResource(R.string.home_item_purchased)
+        val textItemPurchasedRestricted = stringResource(R.string.home_item_purchased_api_restricted)
+        val textItemAdded = stringResource(R.string.home_item_added)
+        val textItemAddedRestricted = stringResource(R.string.home_item_added_api_restricted)
+        val textItemNotAdded = stringResource(R.string.home_item_not_added)
+        val textUserRegisteredRestricted = stringResource(R.string.home_user_registered_api_restricted)
+        val textUserLogged = stringResource(R.string.home_user_logged)
         LaunchedEffect(uiStateBank.value) {
             if (uiStateBank.value == com.mscode.presentation.payment.model.UiState.Validate) {
-                Toast.makeText(context, "Votre achat a été pris en compte", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(
+                    context,
+                    textItemPurchased,
+                    Toast.LENGTH_LONG
+                ).show()
                 delay(4000)
                 Toast.makeText(
                     context,
-                    "Mais l'API ne permet pas de faire un achat",
+                    textItemPurchasedRestricted,
                     Toast.LENGTH_LONG
                 ).show()
                 cartViewModel.onEvent(DeleteAllCarts)
@@ -336,12 +348,12 @@ fun ProductsScreenWithSidePanel(
         }
         LaunchedEffect(uiStateSell.value) {
             if (uiStateSell.value == Success) {
-                Toast.makeText(context, "Votre article a été ajouté avec succès", Toast.LENGTH_LONG)
+                Toast.makeText(context, textItemAdded, Toast.LENGTH_LONG)
                     .show()
                 delay(4000)
                 Toast.makeText(
                     context,
-                    "Mais l'API ne permet pas d'avoir de nouveaux articles",
+                    textItemAddedRestricted,
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -349,10 +361,9 @@ fun ProductsScreenWithSidePanel(
                 repeat(2) { // 2 x 4s = 8s environ
                     Toast.makeText(
                         context,
-                        "Votre article n'a paas pu être ajouté",
+                        textItemNotAdded,
                         Toast.LENGTH_LONG
-                    )
-                        .show()
+                    ).show()
                     delay(4000) // attendre que le toast se termine
                 }
             }
@@ -363,17 +374,19 @@ fun ProductsScreenWithSidePanel(
                 repeat(2) { // 2 x 4s = 8s environ
                     Toast.makeText(
                         context,
-                        "Vous êtes inscrits mais l'api ne permet d'avoir de nouveau utilisateurs",
+                        textUserRegisteredRestricted,
                         Toast.LENGTH_LONG
-                    )
-                        .show()
+                    ).show()
                     delay(4000) // attendre que le toast se termine
                 }
             }
             if (uiStateLogin.value == Logged) {
                 repeat(2) { // 2 x 4s = 8s environ
-                    Toast.makeText(context, "Vous êtes loggé avec succès", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(
+                        context,
+                        textUserLogged,
+                        Toast.LENGTH_LONG
+                    ).show()
                     delay(4000) // attendre que le toast se termine
                 }
             }
@@ -465,7 +478,7 @@ fun ProductItem(
                 ) {
                     Icon(
                         imageVector = if (product.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Ajouter aux favoris",
+                        contentDescription = stringResource(R.string.home_favorites_added),
                         tint = if (product.isFavorite) Color.Red else Color.Gray,
                         modifier = Modifier.scale(scaleFavorite)
                     )
@@ -483,7 +496,7 @@ fun ProductItem(
                 ) {
                     Icon(
                         imageVector = if (isCart) Icons.Filled.ShoppingCart else Icons.Filled.ShoppingCartCheckout,
-                        contentDescription = "Ajouter au panier",
+                        contentDescription = stringResource(R.string.home_cart_added),
                         tint = if (isCart) Color.Blue else Color.Gray,
                         modifier = Modifier.scale(scaleCart)
                     )
@@ -546,8 +559,8 @@ fun ProductItem(
                 AsyncImage(
                     model = product.image,
                     contentDescription = null,
-                    placeholder = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
-                    error = painterResource(id = com.mscode.presentation.R.drawable.placeholder),
+                    placeholder = painterResource(id = R.drawable.placeholder),
+                    error = painterResource(id = R.drawable.placeholder),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight)

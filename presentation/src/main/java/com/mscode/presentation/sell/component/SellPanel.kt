@@ -11,6 +11,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.mscode.presentation.sell.model.UiEvent
 import com.mscode.presentation.sell.viewmodel.SellViewModel
 import com.mscode.presentation.R
@@ -45,7 +46,7 @@ fun SellPanel(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .heightIn(min = 300.dp, max = 600.dp), // Limite haute
+                .heightIn(min = 300.dp, max = 600.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = MaterialTheme.shapes.medium
         ) {
@@ -56,30 +57,30 @@ fun SellPanel(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Text("Créer un produit", style = MaterialTheme.typography.headlineSmall)
+                    Text(stringResource(R.string.sell_create_product), style = MaterialTheme.typography.headlineSmall)
                 }
 
                 item {
-                    TextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
+                    TextField(value = title, onValueChange = { title = it }, label = { Text(stringResource(R.string.sell_title)) })
                 }
                 item {
-                    TextField(value = description, onValueChange = { description = it }, label = { Text("Description") })
+                    TextField(value = description, onValueChange = { description = it }, label = { Text(stringResource(R.string.sell_description)) })
                 }
                 item {
-                    TextField(value = price, onValueChange = { price = it }, label = { Text("Price") })
+                    TextField(value = price, onValueChange = { price = it }, label = { Text(stringResource(R.string.sell_price)) })
                     if (!isPriceValid && price.isNotBlank()) {
                         Text(
-                            text = "Le prix doit être un nombre valide",
+                            text = stringResource(R.string.sell_price_not_validated),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
                 item {
-                    TextField(value = category, onValueChange = { category = it }, label = { Text("Category") })
+                    TextField(value = category, onValueChange = { category = it }, label = { Text(stringResource(R.string.sell_category)) })
                 }
                 item {
-                    TextField(value = imageUrl, onValueChange = { imageUrl = it }, label = { Text("Image URL") })
+                    TextField(value = imageUrl, onValueChange = { imageUrl = it }, label = { Text(stringResource(R.string.sell_image_url)) })
                 }
                 if (imageUrl.isNotBlank()) {
                     item {
@@ -96,7 +97,7 @@ fun SellPanel(
                             onClick = onClose,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Annuler")
+                            Text(stringResource(R.string.sell_cancel))
                         }
 
                         Button(
@@ -114,7 +115,7 @@ fun SellPanel(
                             enabled = isFormValid,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Submit")
+                            Text(stringResource(R.string.sell_submit))
                         }
                     }
                 }
