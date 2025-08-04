@@ -8,7 +8,9 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mscode.presentation.R
 import com.mscode.presentation.filter.model.UiEvent
 import com.mscode.presentation.filter.model.UiState
 import com.mscode.presentation.filter.viewmodel.FilterViewModel
@@ -71,10 +73,10 @@ fun FilterPanel(
                             onExpandedChange = { expanded = !expanded }
                         ) {
                             TextField(
-                                value = selectedCategory.ifEmpty { "Choisir une catégorie" },
+                                value = selectedCategory.ifEmpty { stringResource(R.string.filter_choose_category) },
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Catégorie") },
+                                label = { Text(stringResource(R.string.filter_category)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                                 modifier = Modifier.menuAnchor()
                             )
@@ -102,7 +104,7 @@ fun FilterPanel(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Tri par prix
-                Text("Trier par", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.filter_sorted_by), style = MaterialTheme.typography.labelLarge)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Column {
@@ -115,7 +117,7 @@ fun FilterPanel(
                             }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Prix décroissant")
+                        Text(stringResource(R.string.filter_price_descending))
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -127,7 +129,7 @@ fun FilterPanel(
                             }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Prix croissant")
+                        Text(stringResource(R.string.filter_price_descending))
                     }
                 }
 
@@ -142,7 +144,7 @@ fun FilterPanel(
                         onClick = onClose,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Annuler")
+                        Text(stringResource(R.string.filter_cancel))
                     }
 
                     ElevatedButton(
@@ -157,7 +159,7 @@ fun FilterPanel(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Appliquer")
+                        Text(stringResource(R.string.filter_apply))
                     }
                 }
             }

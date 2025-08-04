@@ -24,9 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.mscode.presentation.R
 import com.mscode.presentation.home.screen.lightBackground
 import com.mscode.presentation.register.model.UiEvent
 import com.mscode.presentation.register.model.UiState
@@ -60,14 +62,14 @@ fun RegisterPanel(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Inscription", style = MaterialTheme.typography.h6)
+                Text(stringResource(R.string.register_registration), style = MaterialTheme.typography.h6)
 
                 Spacer(modifier = Modifier.height(16.dp))
                 var email by remember { mutableStateOf("") }
                 TextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.register_email)) },
                     singleLine = true,
                     isError = uiState.value == UiState.ErrorEmail || uiState.value == UiState.Error
                 )
@@ -77,7 +79,7 @@ fun RegisterPanel(
                 TextField(
                     value = user,
                     onValueChange = { user = it },
-                    label = { Text("Nom d'utilisateur") },
+                    label = { Text(stringResource(R.string.register_user_name)) },
                     singleLine = true,
                     isError = uiState.value == UiState.ErrorLogin || uiState.value == UiState.Error
                 )
@@ -87,7 +89,7 @@ fun RegisterPanel(
                 TextField(
                     value = pass,
                     onValueChange = { pass = it },
-                    label = { Text("Mot de passe") },
+                    label = { Text(stringResource(R.string.register_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
@@ -100,17 +102,17 @@ fun RegisterPanel(
                     onClick = { viewModel.onEvent(UiEvent.Register(user, pass, email)) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("S'inscrire")
+                    Text(stringResource(R.string.register_to_register))
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 TextButton(onClick = onBackToLogin) {
-                    Text("se connecter")
+                    Text(stringResource(R.string.register_to_connect))
                 }
 
                 TextButton(onClick = onClose) {
-                    Text("Fermer")
+                    Text(stringResource(R.string.register_close))
                 }
             }
         }

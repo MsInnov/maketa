@@ -1,0 +1,71 @@
+<resources>
+    <!--account-->
+    <string name="account_my_account">Mon Compte</string>
+    <string name="account_user_name">Nom d\'utilisateur</string>
+    <string name="account_user_email">Email</string>
+    <string name="account_closed">Fermer</string>
+    <!--cart-->
+    <string name="cart_buy">Acheter</string>
+    <string name="cart_delete">Supprimer</string>
+    <!--filter-->
+    <string name="filter_choose_category">Choisir une catégorie</string>
+    <string name="filter_category">Catégorie</string>
+    <string name="filter_sorted_by">Trier par</string>
+    <string name="filter_price_descending">Prix décroissant</string>
+    <string name="filter_price_ascending">Prix croissant</string>
+    <string name="filter_cancel">Annuler</string>
+    <string name="filter_apply">Appliquer</string>
+    <!--Home-->
+    <string name="home_menu">Menu</string>
+    <string name="home_item_purchased">Votre achat a été pris en compte</string>
+    <string name="home_item_purchased_api_restricted">Mais l\'API ne permet pas de faire un achat</string>
+    <string name="home_item_added">Votre article a été ajouté avec succès</string>
+    <string name="home_item_added_api_restricted">Mais l\'API ne permet pas d\'avoir de nouveaux articles</string>
+    <string name="home_item_not_added">Votre article n\'a pas pu être ajouté</string>
+    <string name="home_user_registered_api_restricted">"Vous êtes inscrits mais l\'api ne permet d'avoir de nouveau utilisateurs"</string>
+    <string name="home_user_logged">Vous êtes loggé avec succès</string>
+    <string name="home_favorites_added">Ajouter aux favoris</string>
+    <string name="home_cart_added">Ajouter aux panier</string>
+    <!--Login-->
+    <string name="login_connection">Connexion</string>
+    <string name="login_user_name">Nom d\'utilisateur</string>
+    <string name="login_password">Mot de passe</string>
+    <string name="login_to_connect">Se connecter</string>
+    <string name="login_to_register">S\'inscrire</string>
+    <string name="login_closed">Fermer</string>
+    <!--Menu-->
+    <string name="menu_account">Compte</string>
+    <string name="menu_filter">Filtre</string>
+    <string name="menu_cart">Panier</string>
+    <string name="menu_sell">Vendre</string>
+    <string name="menu_favorite">Favoris</string>
+    <string name="menu_disconnect">Se déconnecter</string>
+    <string name="menu_closed">Fermer</string>
+    <!--Payment-->
+    <string name="payment_infos_banks">Informations Bancaires</string>
+    <string name="payment_card_number">Numéro de carte</string>
+    <string name="payment_minimal_numbers_warning">Le numéro doit contenir 16 chiffres.</string>
+    <string name="payment_date_expired_warning">Date invalide ou expirée.</string>
+    <string name="payment_cvv_not_valid_warning">CVV invalide.</string>
+    <string name="payment_card_owner">Nom sur la carte</string>
+    <string name="payment_field_required">Champ requis.</string>
+    <string name="payment_validate">Valider</string>
+    <!--Register-->
+    <string name="register_registration">Inscription</string>
+    <string name="register_email">Email</string>
+    <string name="register_user_name">Nom d\'utilisateur</string>
+    <string name="register_password">Mot de passe</string>
+    <string name="register_to_register">S\'inscrire</string>
+    <string name="register_to_connect">se connecter</string>
+    <string name="register_close">Fermer</string>
+    <!--Sell-->
+    <string name="sell_create_product">Créer un produit</string>
+    <string name="sell_title">Titre</string>
+    <string name="sell_description">Description</string>
+    <string name="sell_price">Price</string>
+    <string name="sell_price_not_validated">Le prix doit être un nombre valide</string>
+    <string name="sell_category">Category</string>
+    <string name="sell_image_url">Image URL</string>
+    <string name="sell_cancel">Annuler</string>
+    <string name="sell_submit">Soumettre</string>
+</resources>

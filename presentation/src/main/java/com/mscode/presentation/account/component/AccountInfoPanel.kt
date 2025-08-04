@@ -1,4 +1,4 @@
-package com.mscode.presentation.account.screen
+package com.mscode.presentation.account.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,9 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mscode.presentation.R
 import com.mscode.presentation.home.screen.lightBackground
 import com.mscode.presentation.theme.Primary
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AccountInfoPanel(
@@ -47,22 +50,22 @@ fun AccountInfoPanel(
                     .padding(24.dp)
             ) {
                 Text(
-                    text = "Mon Compte",
+                    text = stringResource(R.string.account_my_account),
                     style = typography.titleLarge,
                     color = Primary
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                InfoRow(label = "Nom d'utilisateur", value = username)
+                InfoRow(label = stringResource(R.string.account_user_name), value = username)
                 Spacer(modifier = Modifier.height(8.dp))
-                InfoRow(label = "Email", value = email)
+                InfoRow(label = stringResource(R.string.account_user_email), value = email)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = onClose,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Fermer")
+                    Text(stringResource(R.string.filter_apply))
                 }
             }
         }
