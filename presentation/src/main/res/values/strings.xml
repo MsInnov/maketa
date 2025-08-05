@@ -8,6 +8,7 @@
     <string name="cart_buy">Acheter</string>
     <string name="cart_delete">Supprimer</string>
     <!--filter-->
+    <string name="filter_title">Filtres</string>
     <string name="filter_choose_category">Choisir une catégorie</string>
     <string name="filter_category">Catégorie</string>
     <string name="filter_sorted_by">Trier par</string>
