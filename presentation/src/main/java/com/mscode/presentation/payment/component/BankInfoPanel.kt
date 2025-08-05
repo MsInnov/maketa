@@ -1,7 +1,5 @@
 package com.mscode.presentation.payment.component
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,11 +17,16 @@ import androidx.compose.ui.unit.dp
 import com.mscode.presentation.R
 import com.mscode.presentation.payment.model.BankInfo
 import com.mscode.presentation.payment.model.CardType
+import com.mscode.presentation.payment.model.UiEvent
+import com.mscode.presentation.payment.model.UiState
+import com.mscode.presentation.payment.viewmodel.PaymentViewModel
 
 @Composable
 fun BankInfoPanel(
+    viewModel: PaymentViewModel,
     onValidate: (BankInfo) -> Unit
 ) {
+    val uiState = viewModel.uiState.collectAsState().value
     var cardType by remember { mutableStateOf(CardType.Visa) }
     var cardNumber by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
@@ -35,18 +38,21 @@ fun BankInfoPanel(
     var expiryDateError by remember { mutableStateOf(false) }
     var cardHolderNameError by remember { mutableStateOf(false) }
     var cvvError by remember { mutableStateOf(false) }
-
-    fun validateFields(): Boolean {
-        cardNumberError = !cardNumber.matches(Regex("\\d{16}"))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            expiryDateError = !expiryDate.matches(Regex("(0[1-9]|1[0-2])/\\d{2}")) || !isExpiryValid(expiryDate)
-        }
-        cardHolderNameError = cardHolderName.trim().isEmpty()
-        cvvError = !cvv.matches(Regex("\\d{3}"))
-
-        return !(cardNumberError || expiryDateError || cardHolderNameError || cvvError)
+    cardNumberError = uiState is UiState.BankInfoError && uiState.cardNumberError
+    expiryDateError = uiState is UiState.BankInfoError && uiState.expiryDateError
+    cardHolderNameError = uiState is UiState.BankInfoError && uiState.cardHolderNameError
+    cvvError = uiState is UiState.BankInfoError && uiState.cvvError
+    if(uiState is UiState.BankInfoVerified) {
+        onValidate(
+            BankInfo(
+                cardType,
+                cardNumber,
+                expiryDate,
+                cardHolderName,
+                cvv
+            )
+        )
     }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,17 +146,14 @@ fun BankInfoPanel(
 
         Button(
             onClick = {
-                if (validateFields()) {
-                    onValidate(
-                        BankInfo(
-                            cardType,
-                            cardNumber,
-                            expiryDate,
-                            cardHolderName,
-                            cvv
-                        )
+                viewModel.onEvent(
+                    UiEvent.VerifyBankInfo(
+                        cardNumber,
+                        expiryDate,
+                        cardHolderName,
+                        cvv
                     )
-                }
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,20 +163,4 @@ fun BankInfoPanel(
             Text(stringResource(R.string.payment_validate), fontWeight = FontWeight.Bold)
         }
     }
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun isExpiryValid(expiry: String): Boolean {
-    val parts = expiry.split("/")
-    if (parts.size != 2) return false
-
-    val (monthStr, yearStr) = parts
-    val month = monthStr.toIntOrNull() ?: return false
-    val year = "20$yearStr".toIntOrNull() ?: return false
-
-    val now = java.time.YearMonth.now()
-    val entered = java.time.YearMonth.of(year, month)
-
-    return entered >= now
 }

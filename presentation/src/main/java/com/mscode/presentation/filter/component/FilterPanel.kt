@@ -56,7 +56,7 @@ fun FilterPanel(
                     .padding(24.dp)
             ) {
                 Text(
-                    text = "Filtres",
+                    text = stringResource(R.string.filter_title),
                     style = MaterialTheme.typography.headlineSmall
                 )
 

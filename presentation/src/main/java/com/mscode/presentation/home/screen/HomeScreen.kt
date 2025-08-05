@@ -83,6 +83,8 @@ import com.mscode.presentation.menu.component.MenuAnimated
 import com.mscode.presentation.payment.component.BankInfoPanel
 import com.mscode.presentation.payment.model.UiEvent.LoadBank
 import com.mscode.presentation.payment.model.UiEvent.Validate
+import com.mscode.presentation.payment.model.UiState.BankInfoError
+import com.mscode.presentation.payment.model.UiState.BankInfoVerified
 import com.mscode.presentation.payment.model.UiState.DisplayBankInfo
 import com.mscode.presentation.payment.viewmodel.PaymentViewModel
 import com.mscode.presentation.register.component.RegisterPanel
@@ -331,6 +333,8 @@ fun ProductsScreenWithSidePanel(
         val textUserLogged = stringResource(R.string.home_user_logged)
         LaunchedEffect(uiStateBank.value) {
             if (uiStateBank.value == com.mscode.presentation.payment.model.UiState.Validate) {
+                cartViewModel.onEvent(DeleteAllCarts)
+                paymentViewModel.onEvent(com.mscode.presentation.payment.model.UiEvent.Idle)
                 Toast.makeText(
                     context,
                     textItemPurchased,
@@ -342,8 +346,6 @@ fun ProductsScreenWithSidePanel(
                     textItemPurchasedRestricted,
                     Toast.LENGTH_LONG
                 ).show()
-                cartViewModel.onEvent(DeleteAllCarts)
-                paymentViewModel.onEvent(com.mscode.presentation.payment.model.UiEvent.Idle)
             }
         }
         LaunchedEffect(uiStateSell.value) {
@@ -391,26 +393,34 @@ fun ProductsScreenWithSidePanel(
                 }
             }
         }
+        val uiState by paymentViewModel.uiState.collectAsState()
+
         CustomBottomSheet(
             sheetState = bottomSheetState,
             sheetContent = {
-                if(paymentViewModel.uiState.collectAsState().value == DisplayBankInfo) {
-                    BankInfoPanel(
-                        onValidate = {
-                            paymentViewModel.onEvent(Validate)
-                            coroutineScope.launch { bottomSheetState.hide() }
-                        }
-                    )
-                } else {
-                    CartPanel(
-                        viewModel = cartViewModel,
-                        onCloseRequest = {
-                            coroutineScope.launch { bottomSheetState.hide() }
-                        },
-                        toBank = {
-                            paymentViewModel.onEvent(LoadBank)
-                        }
-                    )
+                when (uiState) {
+                    is DisplayBankInfo,
+                    is BankInfoError,
+                    is BankInfoVerified -> {
+                        BankInfoPanel(
+                            viewModel = paymentViewModel,
+                            onValidate = {
+                                paymentViewModel.onEvent(Validate)
+                                coroutineScope.launch { bottomSheetState.hide() }
+                            }
+                        )
+                    }
+                    else -> {
+                        CartPanel(
+                            viewModel = cartViewModel,
+                            onCloseRequest = {
+                                coroutineScope.launch { bottomSheetState.hide() }
+                            },
+                            toBank = {
+                                paymentViewModel.onEvent(LoadBank)
+                            }
+                        )
+                    }
                 }
             }
         ) {
