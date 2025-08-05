@@ -358,6 +358,7 @@ fun ProductsScreenWithSidePanel(
                     textItemAddedRestricted,
                     Toast.LENGTH_LONG
                 ).show()
+                sellViewModel.onEvent(Idle)
             }
             if (uiStateSell.value == Failure) {
                 repeat(2) { // 2 x 4s = 8s environ
@@ -368,8 +369,8 @@ fun ProductsScreenWithSidePanel(
                     ).show()
                     delay(4000) // attendre que le toast se termine
                 }
+                sellViewModel.onEvent(Idle)
             }
-            sellViewModel.onEvent(Idle)
         }
         LaunchedEffect(uiStateRegister.value, uiStateLogin.value) {
             if (uiStateRegister.value == Registered) {

@@ -8,5 +8,11 @@ sealed class UiEvent {
     data class SellingProduct(
         val product: UiProduct.Sell
     ): UiEvent()
-
+    data class VerifyFormValid(
+        val title: String,
+        val description: String,
+        val price: String,
+        val category: String,
+        val imageUrl: String
+    ): UiEvent()
 }
