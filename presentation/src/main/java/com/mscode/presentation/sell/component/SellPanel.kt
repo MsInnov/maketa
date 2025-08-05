@@ -16,6 +16,7 @@ import com.mscode.presentation.sell.model.UiEvent
 import com.mscode.presentation.sell.viewmodel.SellViewModel
 import com.mscode.presentation.R
 import com.mscode.presentation.home.model.UiProduct
+import com.mscode.presentation.sell.model.UiState
 
 @Composable
 fun SellPanel(
@@ -28,15 +29,8 @@ fun SellPanel(
     var price by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
-
-    val isPriceValid = price.toDoubleOrNull()?.let { it >= 0.0 } == true
-    val isFormValid = title.isNotBlank() &&
-            description.isNotBlank() &&
-            price.isNotBlank() &&
-            category.isNotBlank() &&
-            imageUrl.isNotBlank() &&
-            isPriceValid
-
+    val uiState = sellViewModel.uiState.collectAsState().value
+    println(uiState)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -67,8 +61,23 @@ fun SellPanel(
                     TextField(value = description, onValueChange = { description = it }, label = { Text(stringResource(R.string.sell_description)) })
                 }
                 item {
-                    TextField(value = price, onValueChange = { price = it }, label = { Text(stringResource(R.string.sell_price)) })
-                    if (!isPriceValid && price.isNotBlank()) {
+                    TextField(
+                        value = price,
+                        onValueChange = {
+                            price = it
+                            sellViewModel.onEvent(
+                                UiEvent.VerifyFormValid(
+                                    title,
+                                    description,
+                                    price,
+                                    category,
+                                    imageUrl
+                                )
+                            )
+                        },
+                        label = { Text(stringResource(R.string.sell_price)) }
+                    )
+                    if (uiState is UiState.VerifyFormValid && uiState.priceError) {
                         Text(
                             text = stringResource(R.string.sell_price_not_validated),
                             color = MaterialTheme.colorScheme.error,
@@ -77,12 +86,42 @@ fun SellPanel(
                     }
                 }
                 item {
-                    TextField(value = category, onValueChange = { category = it }, label = { Text(stringResource(R.string.sell_category)) })
+                    TextField(
+                        value = category,
+                        onValueChange = {
+                            category = it
+                            sellViewModel.onEvent(
+                                UiEvent.VerifyFormValid(
+                                    title,
+                                    description,
+                                    price,
+                                    category,
+                                    imageUrl
+                                )
+                            )
+                        },
+                        label = { Text(stringResource(R.string.sell_category)) }
+                    )
                 }
                 item {
-                    TextField(value = imageUrl, onValueChange = { imageUrl = it }, label = { Text(stringResource(R.string.sell_image_url)) })
+                    TextField(
+                        value = imageUrl,
+                        onValueChange = {
+                            imageUrl = it
+                            sellViewModel.onEvent(
+                                UiEvent.VerifyFormValid(
+                                    title,
+                                    description,
+                                    price,
+                                    category,
+                                    imageUrl
+                                )
+                            )
+                        },
+                        label = { Text(stringResource(R.string.sell_image_url)) }
+                    )
                 }
-                if (imageUrl.isNotBlank()) {
+                if (uiState is UiState.VerifyFormValid && !uiState.imageUrlError) {
                     item {
                         ProductImageView(imageUrl = imageUrl)
                     }
@@ -112,7 +151,7 @@ fun SellPanel(
                                 sellViewModel.onEvent(UiEvent.SellingProduct(productData))
                                 onSubmit(productData)
                             },
-                            enabled = isFormValid,
+                            enabled = uiState is UiState.VerifyFormValid && uiState.isValid,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(R.string.sell_submit))

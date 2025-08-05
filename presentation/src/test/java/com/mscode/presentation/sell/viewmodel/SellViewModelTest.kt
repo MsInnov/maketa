@@ -4,6 +4,8 @@ import app.cash.turbine.test
 import com.mscode.domain.common.WrapperResults
 import com.mscode.domain.products.model.Product
 import com.mscode.domain.products.usecase.SellProductUseCase
+import com.mscode.domain.sell.model.ProductValidationResult
+import com.mscode.domain.sell.usecase.VerifyFormValidUseCase
 import com.mscode.presentation.home.model.UiProduct
 import com.mscode.presentation.sell.mapper.SellProductUiMapper
 import com.mscode.presentation.sell.model.UiEvent
@@ -26,6 +28,7 @@ class SellViewModelTest {
 
     private val sellProductUseCase: SellProductUseCase = mockk()
     private val sellProductUiMapper: SellProductUiMapper = mockk()
+    private val verifyFormValidUseCase: VerifyFormValidUseCase = mockk()
 
     private lateinit var viewModel: SellViewModel
 
@@ -37,7 +40,7 @@ class SellViewModelTest {
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = SellViewModel(sellProductUseCase, sellProductUiMapper)
+        viewModel = SellViewModel(sellProductUseCase, sellProductUiMapper, verifyFormValidUseCase)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -80,6 +83,46 @@ class SellViewModelTest {
             assertEquals(UiState.Success, awaitItem())
             viewModel.onEvent(UiEvent.Idle)
             assertEquals(Idle, awaitItem())
+        }
+    }
+
+    @Test
+    fun `onEvent VerifyFormValid and verifyFromValidUseCase should state to VerifyFormValid`() = runTest {
+        coEvery {
+            verifyFormValidUseCase(
+                title = "title",
+                price = "12",
+                imageUrl = "url",
+                category = "category",
+                description = "description"
+            )
+        } returns ProductValidationResult(
+            isValid = false,
+            imageUrlError = false,
+            categoryError = false,
+            descriptionError = false,
+            priceError = false,
+            titleError = false
+        )
+        viewModel.uiState.test {
+            assertEquals(Idle, awaitItem())
+            viewModel.onEvent(
+                UiEvent.VerifyFormValid(
+                    title = "title",
+                    price = "12",
+                    imageUrl = "url",
+                    category = "category",
+                    description = "description"
+                )
+            )
+            assertEquals(UiState.VerifyFormValid(
+                isValid = false,
+                imageUrlError = false,
+                categoryError = false,
+                descriptionError = false,
+                priceError = false,
+                titleError = false
+            ), awaitItem())
         }
     }
 }
