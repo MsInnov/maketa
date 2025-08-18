@@ -80,6 +80,7 @@ import com.mscode.presentation.login.component.LoginPanel
 import com.mscode.presentation.login.model.UiState.Logged
 import com.mscode.presentation.login.viewmodel.LoginViewModel
 import com.mscode.presentation.menu.component.MenuAnimated
+import com.mscode.presentation.menu.viewmodel.MenuViewModel
 import com.mscode.presentation.payment.component.BankInfoPanel
 import com.mscode.presentation.payment.model.UiEvent.LoadBank
 import com.mscode.presentation.payment.model.UiEvent.Validate
@@ -202,6 +203,7 @@ fun ProductsScreenWithSidePanel(
         val loginViewModel: LoginViewModel = hiltViewModel()
         val sellViewModel: SellViewModel = hiltViewModel()
         val accountViewModel: AccountViewModel = hiltViewModel()
+        val menuViewModel: MenuViewModel = hiltViewModel()
 
         Box(
             modifier = Modifier
@@ -255,6 +257,7 @@ fun ProductsScreenWithSidePanel(
                         MenuAnimated(
                             homeViewModel = homeViewModel,
                             filterViewModel = filterViewModel,
+                            menuViewModel = menuViewModel,
                             loginViewModel = loginViewModel,
                             onClose = {
                                 homeViewModel.onEvent(UiEvent.DisplayFavoritesAndCart)

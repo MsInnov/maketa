@@ -30,7 +30,6 @@ fun SellPanel(
     var category by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
     val uiState = sellViewModel.uiState.collectAsState().value
-    println(uiState)
     Box(
         modifier = Modifier
             .fillMaxSize()

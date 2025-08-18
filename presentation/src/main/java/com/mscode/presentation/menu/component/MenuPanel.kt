@@ -42,7 +42,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.mscode.presentation.R
 import com.mscode.presentation.filter.viewmodel.FilterViewModel
 import com.mscode.presentation.home.screen.lightBackground
@@ -60,6 +59,7 @@ fun MenuAnimated(
     homeViewModel: HomeViewModel,
     loginViewModel: LoginViewModel,
     filterViewModel: FilterViewModel,
+    menuViewModel: MenuViewModel,
     onClose: () -> Unit,
     onGoLogin: () -> Unit,
     onGoFavorite: () -> Unit,
@@ -69,7 +69,6 @@ fun MenuAnimated(
     onGoAccount: () -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
-    val menuViewModel: MenuViewModel = hiltViewModel()
     val uiState = menuViewModel.uiState.collectAsState()
     when (uiState.value) {
         is UiState.Disconnected -> {
