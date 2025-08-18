@@ -61,7 +61,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             when (uiEvent) {
 
-                UiEvent.DisplayFavoritesAndCart -> _uiStateFavoriteAndCartDisplay.value = getTokenUseCase() != null
+                UiEvent.DisplayFavoritesAndCart -> _uiStateFavoriteAndCartDisplay.value =
+                    getTokenUseCase() != null
 
                 is UiEvent.UpdateFavorite -> {
                     toggleFavoriteUseCase(
@@ -72,7 +73,8 @@ class HomeViewModel @Inject constructor(
                             _uiState.update { state ->
                                 if (state is UiState.Products) {
                                     val productList = getCurrentProductListForUpdate()
-                                    val updatedList = updateFavoriteProductsList(uiEvent.product, productList)
+                                    val updatedList =
+                                        updateFavoriteProductsList(uiEvent.product, productList)
                                     state.copy(products = updatedList)
                                 } else state
                             }
@@ -89,7 +91,8 @@ class HomeViewModel @Inject constructor(
                         if (this is Success) {
                             _uiState.update { state ->
                                 if (state is UiState.Products) {
-                                    val updatedProducts = updateCartList(uiEvent.product, state.products)
+                                    val updatedProducts =
+                                        updateCartList(uiEvent.product, state.products)
                                     state.copy(products = updatedProducts)
                                 } else state
                             }
@@ -110,7 +113,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 UiEvent.EnableCart -> _uiState.value.apply {
-                    if(this is UiState.Products) {
+                    if (this is UiState.Products) {
                         _uiStateCartEnabled.value =
                             this.products.firstOrNull { it.isCart } != null
                     }
@@ -119,7 +122,7 @@ class HomeViewModel @Inject constructor(
                 UiEvent.LoadProduct -> getProductsUseCase().apply {
                     when (this) {
                         is Success -> {
-                            if(_uiStateFavorite.value) {
+                            if (_uiStateFavorite.value) {
                                 saveFavoriteIsDisplayed(false)
                                 _uiStateFavorite.value = false
                             }
@@ -127,7 +130,7 @@ class HomeViewModel @Inject constructor(
                                 products = data.map { product ->
                                     productsUiMapper.toProductUi(
                                         product = product,
-                                        isCart = isCartFlowUseCase().first().firstOrNull { it.first == product.id }?.second ?: false
+                                        isCart = isCart(product.id)
                                     )
                                 },
                             )
@@ -152,7 +155,8 @@ class HomeViewModel @Inject constructor(
                 UiState.Products(
                     products = result.data.map { product ->
                         productsUiMapper.toProductUi(
-                            product = product
+                            product = product,
+                            isCart = isCart(product.id)
                         )
                     }
                 )
@@ -205,6 +209,7 @@ class HomeViewModel @Inject constructor(
 
                     observeCartChanges()
                 }
+
                 is Error -> _uiState.value = UiState.Error
             }
         }
@@ -240,4 +245,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    private suspend fun isCart(productId: Int) =
+        isCartFlowUseCase().first().firstOrNull { it.first == productId }?.second ?: false
 }
