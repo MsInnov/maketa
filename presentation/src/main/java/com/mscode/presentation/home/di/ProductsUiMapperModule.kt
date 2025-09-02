@@ -8,7 +8,7 @@ import dagger.hilt.android.components.ViewModelComponent
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object PresentationModule {
+object ProductsUiMapperModule {
 
     @Provides
     fun provideProductsUiMapper(): ProductsUiMapper = ProductsUiMapper()
